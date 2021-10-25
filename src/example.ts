@@ -2,11 +2,18 @@ import { div, p, makeApplication, button } from "./index"
 import fs from "fs";
 
 function main() {
-
     const b = button("press me")
     // console.log("b.addEventListener(", b.addEventListener)
-    b.addEventListener("click", console.log)
-    const counter = b;
+
+    const counter = div<number>(
+        b,
+        (count) => `the count is ${count}`
+    );
+    counter.setState(0)
+    b.addEventListener("click", () => {
+
+        counter.setState(10)
+    })
     const main = div("hello",
         p("ee"),
         div("and goodbye"),

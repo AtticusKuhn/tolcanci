@@ -6,6 +6,18 @@ const jsdom_1 = require("jsdom");
 const simpleELement = (tagName) => (...args) => {
     const { document } = (new jsdom_1.JSDOM(``)).window;
     let a = document.createElement(tagName);
+    a.realAddEventListener = a.addEventListener;
+    a.listeners = [];
+    a.addEventListener = function (t, b, c) {
+        console.log("fake event listener");
+        console.log("t", t);
+        console.log("b", b);
+        a.listeners.push({
+            name: t,
+            source: b.toString()
+        });
+        a.realAddEventListener(t, b, c);
+    };
     for (const arg of args) {
         if (typeof arg === "string") {
             let text = document.createElement("div");
@@ -13,38 +25,47 @@ const simpleELement = (tagName) => (...args) => {
             a.appendChild(text);
         }
         else {
-            a.appendChild(arg);
+            if (arg instanceof Function) {
+                a.addEventListener("newState", (newState) => {
+                    a.appendChild(arg(newState));
+                });
+            }
+            else {
+                a.appendChild(arg);
+            }
         }
     }
-    a.realAddEventListener = a.addEventListener;
-    function reportIn(e) {
-        var a = this.lastListenerInfo[this.lastListenerInfo.length - 1];
-        console.log(a);
-    }
-    a.addEventListener = function (a, b, c) {
-        this.realAddEventListener(a, reportIn, c);
-        this.realAddEventListener(a, b, c);
-        if (!this.lastListenerInfo) {
-            this.lastListenerInfo = new Array();
-        }
-        ;
-        this.lastListenerInfo.push({ a: a, b: b, c: c });
+    a.setState = (newState) => {
+        let { CustomEvent } = (new jsdom_1.JSDOM(``)).window;
+        const event = new CustomEvent('newState', { state: newState });
+        a.state = newState;
+        a.dispatchEvent(event);
+        return newState;
     };
     return a;
 };
 _a = ["div", "p", "button"].map(simpleELement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
 const makeApplication = (x) => {
-    const { document } = (new jsdom_1.JSDOM(``)).window;
-    const tmp = document.createElement("div");
+    const tmp = (0, exports.div)();
     tmp.appendChild(x);
     const js = getJs(tmp);
     console.log("js", js);
-    const html = formatHTMLString(tmp.innerHTML);
+    let html = tmp.innerHTML;
+    html += `<script>${js}</script>`;
+    html = formatHTMLString(html);
     return html;
 };
 exports.makeApplication = makeApplication;
 const getJs = (node) => {
-    console.log("lastinfo", node.lastListenerInfo);
+    var _a;
+    let js = "";
+    if (((_a = node === null || node === void 0 ? void 0 : node.listeners) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+        js += node.listeners.map(listener => listener.source).join(";\n");
+    }
+    for (let i = 0; i < node.children.length; i++) {
+        js += getJs(node.children[i]);
+    }
+    return js;
 };
 function formatHTMLString(str) {
     const { document } = (new jsdom_1.JSDOM(``)).window;

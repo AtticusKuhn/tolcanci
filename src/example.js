@@ -7,8 +7,11 @@ const index_1 = require("./index");
 const fs_1 = __importDefault(require("fs"));
 function main() {
     const b = (0, index_1.button)("press me");
-    b.addEventListener("click", console.log);
-    const counter = b;
+    const counter = (0, index_1.div)(b, (count) => `the count is ${count}`);
+    counter.setState(0);
+    b.addEventListener("click", () => {
+        counter.setState(10);
+    });
     const main = (0, index_1.div)("hello", (0, index_1.p)("ee"), (0, index_1.div)("and goodbye"), counter);
     console.log("main html", main.innerHTML);
     console.log("main text", main.innerText);

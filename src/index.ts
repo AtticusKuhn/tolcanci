@@ -1,8 +1,28 @@
 import { JSDOM } from "jsdom"
 type child = string | HTMLElement
-const simpleELement = (tagName: string) => (...args: child[]): HTMLElement => {
+type reactiveChild<T> = (x: T) => child;
+interface extendedElem<T> extends HTMLElement {
+    listeners: { name: String, source: string }[];
+    realAddEventListener: HTMLElement["addEventListener"];
+    state: T;
+    setState: (x: T) => T;
+
+}
+const simpleELement = (tagName: string) => <T>(...args: (child | reactiveChild<T>)[]): extendedElem<T> => {
     const { document } = (new JSDOM(``)).window;
-    let a = document.createElement(tagName);
+    let a = document.createElement(tagName) as extendedElem<T>;
+    a.realAddEventListener = a.addEventListener;
+    a.listeners = []
+    a.addEventListener = function (t: string, b: (x: any) => any, c: boolean) {
+        console.log("fake event listener")
+        console.log("t", t)
+        console.log("b", b)
+        a.listeners.push({
+            name: t,
+            source: b.toString()
+        })
+        a.realAddEventListener(t, b, c);
+    };
     for (const arg of args) {
         if (typeof arg === "string") {
             let text = document.createElement("div");
@@ -10,66 +30,56 @@ const simpleELement = (tagName: string) => (...args: child[]): HTMLElement => {
             a.appendChild(text);
         }
         else {
-            a.appendChild(arg);
+            if (arg instanceof Function) {
+                //@ts-ignore
+                a.addEventListener("newState", (newState: T) => {
+                    //@ts-ignore
+                    a.appendChild(arg(newState))
+                })
+            } else {
+                a.appendChild(arg);
+            }
         }
     }
-    //@ts-ignore
-    a.realAddEventListener = a.addEventListener;
-    //@ts-ignore
-
-    function reportIn(e) {
+    a.setState = (newState: T) => {
+        let { CustomEvent } = (new JSDOM(``)).window;
         //@ts-ignore
-
-        var a = this.lastListenerInfo[this.lastListenerInfo.length - 1];
-        console.log(a)
+        const event = new CustomEvent('newState', { state: newState });
+        a.state = newState;
+        a.dispatchEvent(event)
+        return newState;
     }
-    //@ts-ignore
 
-    a.addEventListener = function (a, b, c) {
-        //@ts-ignore
-        this.realAddEventListener(a, reportIn, c);
-        //@ts-ignore
-
-        this.realAddEventListener(a, b, c);
-        //@ts-ignore
-        if (!this.lastListenerInfo) { this.lastListenerInfo = new Array() };
-        //@ts-ignore
-
-        this.lastListenerInfo.push({ a: a, b: b, c: c });
-    };
-    // const handler = {
-    //     get: (target: any, prop: string, _receiver: any) => {
-    //         const proxyList = ["onclick", "addEventListener"]
-    //         if (prop in proxyList) {
-    //             //@ts-ignore
-    //             target.prop(...arguments)
-    //             return target
-    //         } else {
-    //             //@ts-ignore
-    //             return Reflect.get(...arguments);
-    //         }
-
-    //     }
-    // }
-    // const proxy = new Proxy(a, handler);
     return a;
 };
 
-// export const div = (...x: child[]) => new cdiv(...x)
 export const [div, p, button] = ["div", "p", "button"].map(simpleELement)
 export const makeApplication = (x: HTMLElement): string => {
-    const { document } = (new JSDOM(``)).window;
-    const tmp = document.createElement("div")
+    // const { document } = (new JSDOM(``)).window;
+    const tmp = div()
     tmp.appendChild(x);
     const js = getJs(tmp)
     console.log("js", js)
-    const html = formatHTMLString(tmp.innerHTML);
+    let html = tmp.innerHTML;
+    html += `<script>${js}</script>`
+    html = formatHTMLString(html);
     // console.log("tmp", tmp)
     return html
 }
-const getJs = (node: Element) => {
-    //@ts-ignore
-    console.log("lastinfo", node.lastListenerInfo)
+const getJs = (node: extendedElem<any>): string => {
+    let js = ""
+    if (node?.listeners?.length > 0) {
+        // const f = node.listeners[0].func
+        //@ts-ignore
+        // console.log(`to String: ${f.toString()}. source ${f} `)
+
+        js += node.listeners.map(listener => listener.source).join(";\n")
+    }
+    for (let i = 0; i < node.children.length; i++) {
+        //@ts-ignore
+        js += getJs(node.children[i])
+    }
+    return js;
 }
 
 function formatHTMLString(str: string): string {
