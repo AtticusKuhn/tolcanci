@@ -8,6 +8,10 @@ const simpleELement = (tagName) => (...args) => {
     let a = document.createElement(tagName);
     a.realAddEventListener = a.addEventListener;
     a.listeners = [];
+    a.attr = (b, c) => {
+        a.setAttribute(b, c);
+        return a;
+    };
     a.addEventListener = function (t, b, c) {
         console.log("fake event listener");
         console.log("t", t);
@@ -26,8 +30,16 @@ const simpleELement = (tagName) => (...args) => {
         }
         else {
             if (arg instanceof Function) {
-                a.addEventListener("newState", (newState) => {
-                    a.appendChild(arg(newState));
+                a.listeners.push({
+                    name: "newState",
+                    source: `(newState) => {
+                        const arg = ${arg.toString()}
+                            try {
+                                a.appendChild(arg(newState.detail))
+                            } catch {
+                                a.append(arg(newState.detail))
+                            }
+                        })`
                 });
             }
             else {
@@ -37,7 +49,7 @@ const simpleELement = (tagName) => (...args) => {
     }
     a.setState = (newState) => {
         let { CustomEvent } = (new jsdom_1.JSDOM(``)).window;
-        const event = new CustomEvent('newState', { state: newState });
+        const event = new CustomEvent('newState', { detail: newState });
         a.state = newState;
         a.dispatchEvent(event);
         return newState;
@@ -51,7 +63,7 @@ const makeApplication = (x) => {
     const js = getJs(tmp);
     console.log("js", js);
     let html = tmp.innerHTML;
-    html += `<script>${js}</script>`;
+    html += `<script defer>${js}</script>`;
     html = formatHTMLString(html);
     return html;
 };
@@ -60,7 +72,9 @@ const getJs = (node) => {
     var _a;
     let js = "";
     if (((_a = node === null || node === void 0 ? void 0 : node.listeners) === null || _a === void 0 ? void 0 : _a.length) > 0) {
-        js += node.listeners.map(listener => listener.source).join(";\n");
+        const id = Math.random().toString();
+        node.attr('data-id', id);
+        js += node.listeners.map(listener => `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",${listener.source});\n`).join(";\n");
     }
     for (let i = 0; i < node.children.length; i++) {
         js += getJs(node.children[i]);

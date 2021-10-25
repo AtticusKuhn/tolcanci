@@ -1,0 +1,32 @@
+<div>
+    <div>hello</div>
+    <p></p>
+    <div>ee</div>
+    <p></p>
+    <div>
+        <div>and goodbye</div>
+    </div>
+    <div>
+        <button data-id="a">
+            <div>press me</div>
+        </button>
+        <div data-id="b">the count is 0</div>
+    </div>
+</div>
+<script defer>
+    let counter = {
+        state: 0,
+        onStateChange: function (newState) {
+            const arg = (count) => `the count is ${count}`
+            document.querySelector("[data-id='b']").innerHTML = arg(newState);
+        },
+        setState: function (n) {
+            this.state = n;
+            this.onStateChange(n);
+        }
+    }
+
+    document.querySelector("[data-id='a']").addEventListener("click", () => {
+        counter.setState(10);
+    })
+</script>

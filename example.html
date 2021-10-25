@@ -6,14 +6,21 @@
     <div>
         <div>and goodbye</div>
     </div>
-    <div>
-        <button>
+    <div data-id="0.9601737265118473">
+        <button data-id="0.7060170440755682">
             <div>press me</div>
         </button>
     </div>
 </div>
-<script>(newState) => {
-        a.appendChild(arg(newState));
-    }; () => {
+<script defer="">document.querySelector("[data-id='0.9601737265118473']").addEventListener("newState", (newState) => {
+        const arg = (count) => `the count is ${count}`
+        try {
+            a.appendChild(arg(newState.detail))
+        } catch {
+            a.append(arg(newState.detail))
+        }
+    });
+    document.querySelector("[data-id='0.7060170440755682']").addEventListener("click", () => {
         counter.setState(10);
-    }</script>
+    });
+</script>

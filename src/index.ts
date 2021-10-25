@@ -6,6 +6,7 @@ interface extendedElem<T> extends HTMLElement {
     realAddEventListener: HTMLElement["addEventListener"];
     state: T;
     setState: (x: T) => T;
+    attr: (b: string, c: string) => extendedElem<T>;
 
 }
 const simpleELement = (tagName: string) => <T>(...args: (child | reactiveChild<T>)[]): extendedElem<T> => {
@@ -13,6 +14,10 @@ const simpleELement = (tagName: string) => <T>(...args: (child | reactiveChild<T
     let a = document.createElement(tagName) as extendedElem<T>;
     a.realAddEventListener = a.addEventListener;
     a.listeners = []
+    a.attr = (b, c) => {
+        a.setAttribute(b, c)
+        return a;
+    }
     a.addEventListener = function (t: string, b: (x: any) => any, c: boolean) {
         console.log("fake event listener")
         console.log("t", t)
@@ -32,9 +37,24 @@ const simpleELement = (tagName: string) => <T>(...args: (child | reactiveChild<T
         else {
             if (arg instanceof Function) {
                 //@ts-ignore
-                a.addEventListener("newState", (newState: T) => {
-                    //@ts-ignore
-                    a.appendChild(arg(newState))
+                // a.addEventListener("newState", (newState: CustomEvent<T>) => {
+                //     try {
+                //         //@ts-ignore
+                //         a.appendChild(arg(newState.detail))
+                //     } catch {
+                //         a.append(arg(newState.detail))
+                //     }
+                // })
+                a.listeners.push({
+                    name: "newState",
+                    source: `(newState) => {
+                        const arg = ${arg.toString()}
+                            try {
+                                a.appendChild(arg(newState.detail))
+                            } catch {
+                                a.append(arg(newState.detail))
+                            }
+                        })`
                 })
             } else {
                 a.appendChild(arg);
@@ -43,8 +63,7 @@ const simpleELement = (tagName: string) => <T>(...args: (child | reactiveChild<T
     }
     a.setState = (newState: T) => {
         let { CustomEvent } = (new JSDOM(``)).window;
-        //@ts-ignore
-        const event = new CustomEvent('newState', { state: newState });
+        const event = new CustomEvent<T>('newState', { detail: newState });
         a.state = newState;
         a.dispatchEvent(event)
         return newState;
@@ -61,7 +80,7 @@ export const makeApplication = (x: HTMLElement): string => {
     const js = getJs(tmp)
     console.log("js", js)
     let html = tmp.innerHTML;
-    html += `<script>${js}</script>`
+    html += `<script defer>${js}</script>`
     html = formatHTMLString(html);
     // console.log("tmp", tmp)
     return html
@@ -69,11 +88,11 @@ export const makeApplication = (x: HTMLElement): string => {
 const getJs = (node: extendedElem<any>): string => {
     let js = ""
     if (node?.listeners?.length > 0) {
-        // const f = node.listeners[0].func
-        //@ts-ignore
-        // console.log(`to String: ${f.toString()}. source ${f} `)
-
-        js += node.listeners.map(listener => listener.source).join(";\n")
+        const id = Math.random().toString()
+        node.attr('data-id', id)
+        js += node.listeners.map(listener =>
+            `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",${listener.source});\n`
+        ).join(";\n")
     }
     for (let i = 0; i < node.children.length; i++) {
         //@ts-ignore
