@@ -1,16 +1,23 @@
-import { div, p, makeApplication } from "./index"
+import { div, p, makeApplication, button } from "./index"
 import fs from "fs";
 
 function main() {
+
+    const b = button("press me")
+    // console.log("b.addEventListener(", b.addEventListener)
+    b.addEventListener("click", console.log)
+    const counter = b;
     const main = div("hello",
         p("ee"),
-        div("and goodbye")
+        div("and goodbye"),
+        counter
     )
+
     console.log("main html", main.innerHTML)
     console.log("main text", main.innerText)
 
     const app = makeApplication(main)
-    console.log("app", app)
+    // console.log("app", app)
     fs.writeFileSync("./example.html", app)
 }
 main()
