@@ -51,7 +51,7 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
         else {
             if (arg instanceof Function) {
                 //@ts-ignore
-                a.addEventListener(`newState-${a.secret_id}`, (newState: CustomEvent<T>) => {
+                document.addEventListener(`newState-${a.secret_id}`, (newState: CustomEvent<T>) => {
                     console.log("hard-coded event listener")
                     try {
                         a.append(arg(newState.detail))
@@ -65,6 +65,7 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
                     //     a.append(arg(newState.detail))
                     // }
                 })
+                a.attr("listener-id", a.secret_id);
                 a.listeners.push({
                     name: `newState-${a.secret_id}`,
                     source: `(newState) => {
@@ -72,8 +73,10 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
                         console.log("string-coded event listener")
 
                             try {
-                                a.appendChild(arg(newState.detail))
+                                a.append(arg(newState.detail))
                             } catch {
+                                let a = document.querySelector("[listener-id='${a.secret_id}']")
+                                a.innerHTML = '';
                                 a.append(arg(newState.detail))
                             }
                         }`

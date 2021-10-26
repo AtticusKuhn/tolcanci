@@ -12,7 +12,12 @@ function main() {
     b.addEventListener("click", () => {
         counter.setState(10);
     });
-    const main = (0, index_1.div)("hello", (0, index_1.p)("ee"), (0, index_1.div)("and goodbye"), counter);
+    const counter2 = (0, index_1.div)(b, (count) => (0, index_1.p)(`the count2 is ${count}`)).vname("counter2");
+    counter2.setState(50);
+    b.addEventListener("click", () => {
+        counter2.setState(12);
+    });
+    const main = (0, index_1.div)("hello", (0, index_1.p)("ee"), (0, index_1.div)("and goodbye"), counter, counter2);
     console.log("in main", global);
     console.log("in main", Object.keys(global));
     const app = (0, index_1.makeApplication)(main);

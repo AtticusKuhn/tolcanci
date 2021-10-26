@@ -13,10 +13,19 @@ function main() {
     b.addEventListener("click", () => {
         counter.setState(10)
     })
+    const counter2 = div<number>(
+        b,
+        (count) => p(`the count2 is ${count}`)
+    ).vname("counter2");
+    counter2.setState(50)
+    b.addEventListener("click", () => {
+        counter2.setState(12)
+    })
     const main = div("hello",
         p("ee"),
         div("and goodbye"),
-        counter
+        counter,
+        counter2,
     )
 
     // console.log("main html", main.innerHTML)
