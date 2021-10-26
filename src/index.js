@@ -30,9 +30,8 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
     };
     for (const arg of args) {
         if (typeof arg === "string") {
-            let text = document.createElement("div");
-            text.innerHTML = arg;
-            a.appendChild(text);
+            let text = document.createTextNode(arg);
+            a.append(text.cloneNode(true));
         }
         else {
             if (arg instanceof Function) {
@@ -63,7 +62,7 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
                 });
             }
             else {
-                a.appendChild(arg);
+                a.append(arg.cloneNode(true));
             }
         }
     }
@@ -82,7 +81,7 @@ exports.simpleElement = (0, exports.simpleElementBuilders)((new jsdom_1.JSDOM(``
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
 const makeApplication = (x) => {
     const tmp = (0, exports.div)();
-    tmp.appendChild(x);
+    tmp.appendChild(x.cloneNode(true));
     const js = getJs(tmp);
     let html = tmp.innerHTML;
     html += "<script src='dist/build.js'></script>\n";
@@ -130,7 +129,7 @@ function formatNode(node, level) {
         formatNode(node.children[i], level);
         if (node.lastElementChild == node.children[i]) {
             textNode = document.createTextNode('\n' + indentAfter);
-            node.appendChild(textNode);
+            node.appendChild(textNode.cloneNode(true));
         }
     }
     return node;

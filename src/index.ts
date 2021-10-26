@@ -1,8 +1,8 @@
 import { JSDOM } from "jsdom"
 //@ts-ignore
 import client from "./client"
-type child = string | HTMLElement
-type reactiveChild<T> = (x: T) => child;
+type child<T> = string | extendedElem<T>
+type reactiveChild<T> = (x: T) => child<T>;
 interface extendedElem<T> extends HTMLElement {
     listeners: { name: String, source: string }[];
     realAddEventListener: HTMLElement["addEventListener"];
@@ -17,7 +17,7 @@ interface extendedElem<T> extends HTMLElement {
 const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
 const randomLetter = () => String.fromCharCode(randomInRange(97)(122))
 const id = (): string => new Array(10).fill(0).map(_x => randomLetter()).join("")
-export const simpleElementBuilders = (document: Document) => (tagName: string) => <T>(...args: (child | reactiveChild<T>)[]): extendedElem<T> => {
+export const simpleElementBuilders = (document: Document) => (tagName: string) => <T>(...args: (child<T> | reactiveChild<T>)[]): extendedElem<T> => {
     // const { document } = (new JSDOM(``)).window;
     let a = document.createElement(tagName) as extendedElem<T>;
     a.realAddEventListener = a.addEventListener;
@@ -44,9 +44,8 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
     };
     for (const arg of args) {
         if (typeof arg === "string") {
-            let text = document.createElement("div");
-            text.innerHTML = arg;
-            a.appendChild(text);
+            let text = document.createTextNode(arg);
+            a.append(text.cloneNode(true));
         }
         else {
             if (arg instanceof Function) {
@@ -82,7 +81,7 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
                         }`
                 })
             } else {
-                a.appendChild(arg);
+                a.append(arg.cloneNode(true));
             }
         }
     }
@@ -103,7 +102,7 @@ export const [div, p, button] = ["div", "p", "button"].map(simpleElement)
 export const makeApplication = (x: HTMLElement): string => {
     // const { document } = (new JSDOM(``)).window;
     const tmp = div()
-    tmp.appendChild(x);
+    tmp.appendChild(x.cloneNode(true));
     const js = getJs(tmp)
     // console.log("js", js)
     let html = tmp.innerHTML;
@@ -146,7 +145,7 @@ const getJs = (node: extendedElem<any>): string => {
     }
     return js;
 }
-
+//@ts-ignore
 function formatHTMLString(str: string): string {
     const { document } = (new JSDOM(``)).window;
     var div = document.createElement('div');
@@ -165,7 +164,7 @@ function formatNode(node: Element, level: number): Element {
         formatNode(node.children[i], level);
         if (node.lastElementChild == node.children[i]) {
             textNode = document.createTextNode('\n' + indentAfter);
-            node.appendChild(textNode);
+            node.appendChild(textNode.cloneNode(true));
         }
     }
     return node;

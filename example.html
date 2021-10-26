@@ -1,69 +1,13 @@
 
-<div>
-    <div>hello</div>
-    <p></p>
-    <div>ee</div>
-    <p></p>
-    <div>
-        <div>and goodbye</div>
-    </div>
-    <div listener-id="wqufgdjrrn" data-id="0.13241984548018237">
-        <p></p>
-        <div>the count is 69</div>
-        <p></p>
-    </div>
-    <div listener-id="jdpxbbllck" data-id="0.14003741150235793">
-        <button data-id="0.5657372182031639">
-            <div>press me</div>
-        </button>
-        <p></p>
-        <div>the count2 is 50</div>
-        <p></p>
-    </div>
+<div>here are some reusable components:
+    <p>my custom resuable component</p>
+    <p>my custom resuable component</p>
+    <p>my custom resuable component</p>
+    <p>my custom resuable component</p>
+    <p>my custom resuable component</p>
+    <p>my custom resuable component</p>
+    <p>my custom resuable component</p>
 </div>
 <script src="dist/build.js"></script>
 
-<script defer="">
-        const counter = clientElement(document.querySelector("[data-id='0.13241984548018237'"))();
-
-        counter.secret_id = "wqufgdjrrn";
-
-        document.addEventListener("newState-wqufgdjrrn",(newState) => {
-                        const arg = (count) => (0, index_1.p)(`the count is ${count}`)
-                        console.log("string-coded event listener")
-
-                            try {
-                                a.append(arg(newState.detail))
-                            } catch {
-                                let a = document.querySelector("[listener-id='wqufgdjrrn']")
-                                a.innerHTML = '';
-                                a.append(arg(newState.detail))
-                            }
-                        });
-
-        const counter2 = clientElement(document.querySelector("[data-id='0.14003741150235793'"))();
-
-        counter2.secret_id = "jdpxbbllck";
-
-        document.addEventListener("newState-jdpxbbllck",(newState) => {
-                        const arg = (count) => (0, index_1.p)(`the count2 is ${count}`)
-                        console.log("string-coded event listener")
-
-                            try {
-                                a.append(arg(newState.detail))
-                            } catch {
-                                let a = document.querySelector("[listener-id='jdpxbbllck']")
-                                a.innerHTML = '';
-                                a.append(arg(newState.detail))
-                            }
-                        });
-document.querySelector("[data-id='0.5657372182031639']").addEventListener("click",
-                () => {
-        counter.setState(10);
-    });
-;
-document.querySelector("[data-id='0.5657372182031639']").addEventListener("click",
-                () => {
-        counter2.setState(12);
-    });
-</script>
+<script defer=""></script>
