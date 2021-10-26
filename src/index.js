@@ -81,7 +81,7 @@ exports.simpleElement = (0, exports.simpleElementBuilders)((new jsdom_1.JSDOM(``
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
 const makeApplication = (x) => {
     const tmp = (0, exports.div)();
-    tmp.appendChild(x.cloneNode(true));
+    tmp.appendChild(x);
     const js = getJs(tmp);
     let html = tmp.innerHTML;
     html += "<script src='dist/build.js'></script>\n";
@@ -103,6 +103,7 @@ const getJs = (node) => {
         `;
     }
     if (((_a = node === null || node === void 0 ? void 0 : node.listeners) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+        console.log("node has a listener");
         node.attr('data-id', id);
         js += node.listeners.map(listener => listener.name.startsWith("newState") ?
             `document.addEventListener("${listener.name}",${listener.source});\n`

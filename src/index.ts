@@ -102,7 +102,7 @@ export const [div, p, button] = ["div", "p", "button"].map(simpleElement)
 export const makeApplication = (x: HTMLElement): string => {
     // const { document } = (new JSDOM(``)).window;
     const tmp = div()
-    tmp.appendChild(x.cloneNode(true));
+    tmp.appendChild(x);
     const js = getJs(tmp)
     // console.log("js", js)
     let html = tmp.innerHTML;
@@ -130,6 +130,7 @@ const getJs = (node: extendedElem<any>): string => {
         // `
     }
     if (node?.listeners?.length > 0) {
+        console.log("node has a listener")
         node.attr('data-id', id)
         js += node.listeners.map(listener =>
             listener.name.startsWith("newState") ?
