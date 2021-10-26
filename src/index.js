@@ -1,10 +1,12 @@
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeApplication = exports.button = exports.p = exports.div = void 0;
+exports.makeApplication = exports.button = exports.p = exports.div = exports.simpleElement = exports.simpleElementBuilders = void 0;
 const jsdom_1 = require("jsdom");
-const simpleELement = (tagName) => (...args) => {
-    const { document } = (new jsdom_1.JSDOM(``)).window;
+const randomInRange = (low) => (high) => Math.floor(Math.random() * (high - low) + low);
+const randomLetter = () => String.fromCharCode(randomInRange(97)(122));
+const id = () => new Array(10).fill(0).map(_x => randomLetter()).join("");
+const simpleElementBuilders = (document) => (tagName) => (...args) => {
     let a = document.createElement(tagName);
     a.realAddEventListener = a.addEventListener;
     a.listeners = [];
@@ -12,10 +14,14 @@ const simpleELement = (tagName) => (...args) => {
         a.setAttribute(b, c);
         return a;
     };
+    a.vname = (x) => {
+        a.varName = x;
+        return a;
+    };
+    a.secret_id = id();
     a.addEventListener = function (t, b, c) {
-        console.log("fake event listener");
-        console.log("t", t);
-        console.log("b", b);
+        console.log("adding fake event listener");
+        console.log("in fake event listener, function source is", b.toString());
         a.listeners.push({
             name: t,
             source: b.toString()
@@ -30,16 +36,27 @@ const simpleELement = (tagName) => (...args) => {
         }
         else {
             if (arg instanceof Function) {
+                a.addEventListener(`newState-${a.secret_id}`, (newState) => {
+                    console.log("hard-coded event listener");
+                    try {
+                        a.append(arg(newState.detail));
+                    }
+                    catch (e) {
+                        console.log("error in hard-coded event listener");
+                    }
+                });
                 a.listeners.push({
-                    name: "newState",
+                    name: `newState-${a.secret_id}`,
                     source: `(newState) => {
                         const arg = ${arg.toString()}
+                        console.log("string-coded event listener")
+
                             try {
                                 a.appendChild(arg(newState.detail))
                             } catch {
                                 a.append(arg(newState.detail))
                             }
-                        })`
+                        }`
                 });
             }
             else {
@@ -49,21 +66,24 @@ const simpleELement = (tagName) => (...args) => {
     }
     a.setState = (newState) => {
         let { CustomEvent } = (new jsdom_1.JSDOM(``)).window;
-        const event = new CustomEvent('newState', { detail: newState });
+        const event = new CustomEvent(`newState-${a.secret_id}`, { detail: newState });
         a.state = newState;
-        a.dispatchEvent(event);
+        console.log(`serverside braodcasting`, `newState-${a.secret_id}`);
+        document.dispatchEvent(event);
         return newState;
     };
     return a;
 };
-_a = ["div", "p", "button"].map(simpleELement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
+exports.simpleElementBuilders = simpleElementBuilders;
+exports.simpleElement = (0, exports.simpleElementBuilders)((new jsdom_1.JSDOM(``)).window.document);
+_a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
 const makeApplication = (x) => {
     const tmp = (0, exports.div)();
     tmp.appendChild(x);
     const js = getJs(tmp);
-    console.log("js", js);
     let html = tmp.innerHTML;
-    html += `<script defer>${js}</script>`;
+    html += "<script src='dist/build.js'></script>\n";
+    html += `<script defer>${js}</script>\n`;
     html = formatHTMLString(html);
     return html;
 };
@@ -71,10 +91,21 @@ exports.makeApplication = makeApplication;
 const getJs = (node) => {
     var _a;
     let js = "";
-    if (((_a = node === null || node === void 0 ? void 0 : node.listeners) === null || _a === void 0 ? void 0 : _a.length) > 0) {
-        const id = Math.random().toString();
+    const id = Math.random().toString();
+    if (node.state !== null && node.state !== undefined) {
         node.attr('data-id', id);
-        js += node.listeners.map(listener => `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",${listener.source});\n`).join(";\n");
+        console.log("node has state", node.state);
+        js += `
+        const ${node.varName} = clientElement(document.querySelector("[data-id='${id}'"))();\n
+        ${node.varName}.secret_id = "${node.secret_id}";\n
+        `;
+    }
+    if (((_a = node === null || node === void 0 ? void 0 : node.listeners) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+        node.attr('data-id', id);
+        js += node.listeners.map(listener => listener.name.startsWith("newState") ?
+            `document.addEventListener("${listener.name}",${listener.source});\n`
+            : `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",
+                ${listener.source});\n`).join(";\n");
     }
     for (let i = 0; i < node.children.length; i++) {
         js += getJs(node.children[i]);

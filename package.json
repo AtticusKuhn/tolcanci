@@ -13,7 +13,7 @@
     "webpack-cli": "3.3.11"
   },
   "scripts": {
-    "build-html": "tsc && node ./src/example.js",
+    "build-html": "tsc && webpack && node ./src/example.js",
     "run": "tsc",
     "build": "webpack"
   }

@@ -1,3 +1,4 @@
+
 <div>
     <div>hello</div>
     <p></p>
@@ -6,21 +7,41 @@
     <div>
         <div>and goodbye</div>
     </div>
-    <div data-id="0.9601737265118473">
-        <button data-id="0.7060170440755682">
+    <div data-id="0.8970656688308953">
+        <button data-id="0.2619994701099273">
             <div>press me</div>
         </button>
     </div>
 </div>
-<script defer="">document.querySelector("[data-id='0.9601737265118473']").addEventListener("newState", (newState) => {
-        const arg = (count) => `the count is ${count}`
-        try {
-            a.appendChild(arg(newState.detail))
-        } catch {
-            a.append(arg(newState.detail))
-        }
-    });
-    document.querySelector("[data-id='0.7060170440755682']").addEventListener("click", () => {
+<script src="dist/build.js"></script>
+
+<script defer="">
+        const counter = clientElement(document.querySelector("[data-id='0.8970656688308953'"))();
+
+        counter.secret_id = "swqfafljgh";
+
+        document.addEventListener("newState-swqfafljgh",(newState) => {
+                    console.log("hard-coded event listener");
+                    try {
+                        a.append(arg(newState.detail));
+                    }
+                    catch (e) {
+                        console.log("error in hard-coded event listener");
+                    }
+                });
+;
+document.addEventListener("newState-swqfafljgh",(newState) => {
+                        const arg = (count) => (0, index_1.p)(`the count is ${count}`)
+                        console.log("string-coded event listener")
+
+                            try {
+                                a.appendChild(arg(newState.detail))
+                            } catch {
+                                a.append(arg(newState.detail))
+                            }
+                        });
+document.querySelector("[data-id='0.2619994701099273']").addEventListener("click",
+                () => {
         counter.setState(10);
     });
 </script>

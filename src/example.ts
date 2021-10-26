@@ -7,11 +7,10 @@ function main() {
 
     const counter = div<number>(
         b,
-        (count) => `the count is ${count}`
-    );
-    counter.setState(0)
+        (count) => p(`the count is ${count}`)
+    ).vname("counter");
+    counter.setState(69)
     b.addEventListener("click", () => {
-
         counter.setState(10)
     })
     const main = div("hello",
@@ -20,8 +19,11 @@ function main() {
         counter
     )
 
-    console.log("main html", main.innerHTML)
-    console.log("main text", main.innerText)
+    // console.log("main html", main.innerHTML)
+    // console.log("main text", main.innerText)
+    console.log("in main", global)
+    //@ts-ignore
+    console.log("in main", Object.keys(global))
 
     const app = makeApplication(main)
     // console.log("app", app)

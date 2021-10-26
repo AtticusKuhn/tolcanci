@@ -7,14 +7,14 @@ const index_1 = require("./index");
 const fs_1 = __importDefault(require("fs"));
 function main() {
     const b = (0, index_1.button)("press me");
-    const counter = (0, index_1.div)(b, (count) => `the count is ${count}`);
-    counter.setState(0);
+    const counter = (0, index_1.div)(b, (count) => (0, index_1.p)(`the count is ${count}`)).vname("counter");
+    counter.setState(69);
     b.addEventListener("click", () => {
         counter.setState(10);
     });
     const main = (0, index_1.div)("hello", (0, index_1.p)("ee"), (0, index_1.div)("and goodbye"), counter);
-    console.log("main html", main.innerHTML);
-    console.log("main text", main.innerText);
+    console.log("in main", global);
+    console.log("in main", Object.keys(global));
     const app = (0, index_1.makeApplication)(main);
     fs_1.default.writeFileSync("./example.html", app);
 }
