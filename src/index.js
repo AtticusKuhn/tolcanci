@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.makeApplication = exports.button = exports.p = exports.div = exports.simpleElement = void 0;
 const jsdom_1 = require("jsdom");
+const fs_1 = __importDefault(require("fs"));
 const common_1 = require("./common");
 exports.simpleElement = (0, common_1.simpleElementBuilders)((new jsdom_1.JSDOM(``)).window);
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
@@ -17,31 +21,14 @@ const makeApplication = (x) => {
     return html;
 };
 exports.makeApplication = makeApplication;
-const getJs = (node) => {
-    var _a;
+const getJs = (_node) => {
     let js = "";
-    js += `//generaing js for ${node.secret_id}\n`;
-    const id = Math.random().toString();
-    if (node.state !== null && node.state !== undefined) {
-        node.attr('data-id', id);
-        console.log("node has state", node.state);
-        js += `
-        const ${node.varName} = clientElement(document.querySelector("[data-id='${id}'"))().setState(${node.state});\n
-        ${node.varName}.secret_id = "${node.secret_id}";\n
-        `;
-    }
-    console.log("listeners in getJs", node === null || node === void 0 ? void 0 : node.listeners);
-    if (((_a = node === null || node === void 0 ? void 0 : node.listeners) === null || _a === void 0 ? void 0 : _a.length) > 0) {
-        console.log("node has a listener");
-        node.attr('data-id', id);
-        js += node.listeners.map(listener => listener.name.startsWith("newState") ?
-            `document.addEventListener("${listener.name}",${listener.source});\n`
-            : `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",
-                ${listener.source});\n`).join(";\n");
-    }
-    for (let i = 0; i < node.children.length; i++) {
-        js += getJs(node.children[i]);
-    }
+    js += "let exports = {}; \n";
+    js += "let require = (string) => window['index_1']; \n";
+    js += fs_1.default.readFileSync("./src/example.js", "utf-8");
+    js += "document.body.innerHTML = '';\n";
+    js += "document.body.append(main);\n";
+    js = js.replace(/(^.*require.*$)/g, "// $1");
     return js;
 };
 function formatHTMLString(str) {

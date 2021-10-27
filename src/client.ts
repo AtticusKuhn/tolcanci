@@ -11,6 +11,8 @@ for (const element of ["div", "p", "button"]) {
     window[element] = clientElement(element)
     //@ts-ignore
     window.index_1[element] = clientElement(element)
+    //@ts-ignore
+    window.index_1.makeApplication = (s: any) => null
 
 }
 export default null

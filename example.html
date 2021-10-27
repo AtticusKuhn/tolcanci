@@ -5,55 +5,38 @@
         <div>I am a reusable component</div>
     </div>
     <div>we allow for stateful components
-        <div listener-id="okuylapghw" data-id="0.6445365739027129">
-            <div arg-id="tnyhlhownd">
-                <div>hello 1</div>
+        <div listener-id="bhmqxikedl">
+            <div arg-id="qbieccwsib">
+                <div>
+                    <div>the current count 1</div>
+                    <div>the next count wil be 2</div>
+                </div>
             </div>
-            <button data-id="0.7493448111593273">press me</button>
+            <button>press me</button>
         </div>
     </div>
 </div>
 <script src="dist/build.js"></script>
 
-<script defer="">//generaing js for wmngecsntw
-//generaing js for ulyjwflnes
-//generaing js for jjtvmmvncb
-//generaing js for rlbelemyui
-//generaing js for nmarthelgw
-//generaing js for gumjsnvela
-//generaing js for okuylapghw
-
-        const counterExample = clientElement(document.querySelector("[data-id='0.6445365739027129'"))().setState(1);
-
-        counterExample.secret_id = "okuylapghw";
-
-        document.addEventListener("newState-okuylapghw",(newState) => {
-                    console.log("hard-coded event listener called");
-                    try {
-                        a.append(arg(newState.detail));
-                    }
-                    catch (e) {
-                        console.log("error in hard-coded event listener");
-                    }
-                });
-;
-document.addEventListener("newState-okuylapghw",(newState) => {
-                        const arg = (count) => (0, index_1.div)(`hello ${count}`)
-                        console.log("string-coded event listener called")
-
-                            try {
-                                a.append(arg(newState.detail))
-                            } catch {
-                                let a = document.querySelector("[arg-id='tnyhlhownd']")
-                                a.innerHTML = '';
-                                a.append(arg(newState.detail).attr("arg-id","tnyhlhownd"))
-                            }
-                        });
-//generaing js for tnyhlhownd
-//generaing js for sfnccotklt
-//generaing js for cvpeeqyfee
-document.querySelector("[data-id='0.7493448111593273']").addEventListener("click",
-                () => {
-        counterExample.setState(counterExample.state + 1);
-    });
+<script defer="">let exports = {}; 
+let require = (string) => window['index_1']; 
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.app = void 0;
+const index_1 = require("./index");
+const intro = (0, index_1.div)("welcome to tolcanci, a UI framework");
+const temp = (0, index_1.div)("I am a reusable component");
+const comps = (0, index_1.div)("we allow for reusable components", temp, temp);
+const b = (0, index_1.button)("press me");
+const displayCount = (count) => (0, index_1.div)((0, index_1.div)(`the current count ${count}`), (0, index_1.div)(`the next count wil be ${count + 1}`));
+const counterExample = (0, index_1.div)((count) => displayCount(count), b).vname("counterExample");
+counterExample.setState(1);
+b.addEventListener("click", () => {
+    counterExample.setState(counterExample.state + 1);
+});
+const state = (0, index_1.div)("we allow for stateful components", counterExample);
+const main = (0, index_1.div)(intro, comps, state);
+exports.app = (0, index_1.makeApplication)(main);
+document.body.innerHTML = '';
+document.body.append(main);
 </script>

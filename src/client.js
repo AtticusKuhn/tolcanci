@@ -7,5 +7,6 @@ window.index_1 = {};
 for (const element of ["div", "p", "button"]) {
     window[element] = clientElement(element);
     window.index_1[element] = clientElement(element);
+    window.index_1.makeApplication = (s) => null;
 }
 exports.default = null;

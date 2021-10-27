@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom"
+import fs from "fs"
 //@ts-ignore
 import client from "./client"
 import { simpleElementBuilders, extendedElem } from "./common"
@@ -19,41 +20,48 @@ export const makeApplication = (x: HTMLElement): string => {
     // console.log("tmp", tmp)
     return html
 }
-const getJs = (node: extendedElem<any>): string => {
+const getJs = (_node: extendedElem<any>): string => {
     let js = ""
-    js += `//generaing js for ${node.secret_id}\n`
-    const id = Math.random().toString()
-
-    if (node.state !== null && node.state !== undefined) {
-        node.attr('data-id', id)
-        console.log("node has state", node.state)
-        js += `
-        const ${node.varName} = clientElement(document.querySelector("[data-id='${id}'"))().setState(${node.state});\n
-        ${node.varName}.secret_id = "${node.secret_id}";\n
-        `
-        // js += `
-        // const ${node.secret_id} = {
-
-        // }
-        // `
-    }
-    console.log("listeners in getJs", node?.listeners)
-    if (node?.listeners?.length > 0) {
-        console.log("node has a listener")
-        node.attr('data-id', id)
-        js += node.listeners.map(listener =>
-            listener.name.startsWith("newState") ?
-                `document.addEventListener("${listener.name}",${listener.source});\n`
-                : `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",
-                ${listener.source});\n`
-
-        ).join(";\n")
-    }
-    for (let i = 0; i < node.children.length; i++) {
-        //@ts-ignore
-        js += getJs(node.children[i])
-    }
+    js += "let exports = {}; \n"
+    js += "let require = (string) => window['index_1']; \n"
+    js += fs.readFileSync("./src/example.js", "utf-8")
+    js += "document.body.innerHTML = '';\n"
+    js += "document.body.append(main);\n"
+    js = js.replace(/(^.*require.*$)/g, "// $1")
     return js;
+    // js += `//generaing js for ${node.secret_id}\n`
+    // const id = Math.random().toString()
+
+    // if (node.state !== null && node.state !== undefined) {
+    //     node.attr('data-id', id)
+    //     console.log("node has state", node.state)
+    //     js += `
+    //     const ${node.varName} = clientElement(document.querySelector("[data-id='${id}'"))().setState(${node.state});\n
+    //     ${node.varName}.secret_id = "${node.secret_id}";\n
+    //     `
+    //     // js += `
+    //     // const ${node.secret_id} = {
+
+    //     // }
+    //     // `
+    // }
+    // console.log("listeners in getJs", node?.listeners)
+    // if (node?.listeners?.length > 0) {
+    //     console.log("node has a listener")
+    //     node.attr('data-id', id)
+    //     js += node.listeners.map(listener =>
+    //         listener.name.startsWith("newState") ?
+    //             `document.addEventListener("${listener.name}",${listener.source});\n`
+    //             : `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",
+    //             ${listener.source});\n`
+
+    //     ).join(";\n")
+    // }
+    // for (let i = 0; i < node.children.length; i++) {
+    //     //@ts-ignore
+    //     js += getJs(node.children[i])
+    // }
+    // return js;
 }
 //@ts-ignore
 function formatHTMLString(str: string): string {
