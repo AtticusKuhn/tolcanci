@@ -6,9 +6,12 @@ function main() {
     const temp = div("I am a reusable component")
     const comps = div("we allow for reusable components", temp, temp)
     const b = button("press me")
+    const displayCount = div(
+        (count) => div(`the current count ${count}`),
+        (count) => div(`the next count wil be ${count + 1}`),
+    )
     const counterExample = div<number>(
-        (count) => div(`hello ${count}`),
-
+        displayCount,
         b,
     ).vname("counterExample")
     counterExample.setState(1)

@@ -1,95 +1,10 @@
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeApplication = exports.button = exports.p = exports.div = exports.simpleElement = exports.simpleElementBuilders = void 0;
+exports.makeApplication = exports.button = exports.p = exports.div = exports.simpleElement = void 0;
 const jsdom_1 = require("jsdom");
-const randomInRange = (low) => (high) => Math.floor(Math.random() * (high - low) + low);
-const randomLetter = () => String.fromCharCode(randomInRange(97)(122));
-const id = () => new Array(10).fill(0).map(_x => randomLetter()).join("");
-const simpleElementBuilders = (document) => (tagName) => (...args) => {
-    let a = document.createElement(tagName);
-    a.realAddEventListener = a.addEventListener;
-    a.listeners = [];
-    a.attr = (b, c) => {
-        a.setAttribute(b, c);
-        return a;
-    };
-    a.vname = (x) => {
-        a.varName = x;
-        return a;
-    };
-    a.secret_id = id();
-    a.addEventListener = function (t, b, c) {
-        console.log("adding fake event listener");
-        a.listeners.push({
-            name: t,
-            source: b.toString()
-        });
-        a.realAddEventListener(t, b, c);
-    };
-    for (const arg of args) {
-        if (typeof arg === "string") {
-            let text = document.createTextNode(arg);
-            a.append(text.cloneNode(true));
-        }
-        else {
-            if (arg instanceof Function) {
-                a.attr("listener-id", a.secret_id);
-                let argElem = arg(a.state);
-                argElem.attr("arg-id", argElem.secret_id);
-                a.addEventListener(`newState-${a.secret_id}`, (newState) => {
-                    console.log("hard-coded event listener called");
-                    try {
-                        a.append(arg(newState.detail));
-                    }
-                    catch (e) {
-                        console.log("error in hard-coded event listener");
-                    }
-                });
-                document.addEventListener(`newState-${a.secret_id}`, (newState) => {
-                    console.log("hard-coded event listener called");
-                    try {
-                        argElem.innerHTML = '';
-                        argElem.append(arg(newState.detail));
-                    }
-                    catch (e) {
-                        console.log("error in hard-coded event listener");
-                    }
-                });
-                a.listeners.push({
-                    name: `newState-${a.secret_id}`,
-                    source: `(newState) => {
-                        const arg = ${arg.toString()}
-                        console.log("string-coded event listener called")
-
-                            try {
-                                a.append(arg(newState.detail))
-                            } catch {
-                                let a = document.querySelector("[arg-id='${argElem.secret_id}']")
-                                a.innerHTML = '';
-                                a.append(arg(newState.detail).attr("arg-id","${argElem.secret_id}"))
-                            }
-                        }`
-                });
-                a.append(argElem);
-            }
-            else {
-                a.append(arg);
-            }
-        }
-    }
-    a.setState = (newState) => {
-        let { CustomEvent } = (new jsdom_1.JSDOM(``)).window;
-        const event = new CustomEvent(`newState-${a.secret_id}`, { detail: newState });
-        a.state = newState;
-        console.log(`serverside braodcasting`, `newState-${a.secret_id}`);
-        document.dispatchEvent(event);
-        return newState;
-    };
-    return a;
-};
-exports.simpleElementBuilders = simpleElementBuilders;
-exports.simpleElement = (0, exports.simpleElementBuilders)((new jsdom_1.JSDOM(``)).window.document);
+const common_1 = require("./common");
+exports.simpleElement = (0, common_1.simpleElementBuilders)((new jsdom_1.JSDOM(``)).window);
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
 const makeApplication = (x) => {
     const tmp = (0, exports.div)();
@@ -111,7 +26,7 @@ const getJs = (node) => {
         node.attr('data-id', id);
         console.log("node has state", node.state);
         js += `
-        const ${node.varName} = clientElement(document.querySelector("[data-id='${id}'"))();\n
+        const ${node.varName} = clientElement(document.querySelector("[data-id='${id}'"))().setState(${node.state});\n
         ${node.varName}.secret_id = "${node.secret_id}";\n
         `;
     }
