@@ -9,9 +9,9 @@ const displayCount = (count: number) => div<null>(
     div(`the next count wil be ${count + 1}`),
 )
 const counterExample = div<number>(
-    (count) => displayCount(count),
+    displayCount,
     b,
-).vname("counterExample")
+)
 counterExample.setState(1)
 b.addEventListener("click", () => {
     counterExample.setState(counterExample.state + 1)

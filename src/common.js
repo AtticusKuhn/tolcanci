@@ -8,25 +8,34 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
     let document = window.document;
     let a = (typeof tagName === "string" ? document.createElement(tagName)
         : tagName);
-    a.realAddEventListener = a.addEventListener;
-    a.listeners = [];
     a.attr = (b, c) => {
         a.setAttribute(b, c);
         return a;
     };
-    a.vname = (x) => {
-        a.varName = x;
-        return a;
+    a.eventListeners = [];
+    a.realEventListener = a.addEventListener;
+    a.addEventListener = (event, handler) => {
+        console.log("addEventListener called", event);
+        a.eventListeners.push({ event, handler });
+        a.realEventListener(event, handler);
+    };
+    const tmpClone = (a) => {
+        let x = a.cloneNode(true);
+        for (let i = 0; i < a.children.length; i++) {
+            x.appendChild(tmpClone(a.children[i]));
+        }
+        console.log("in clone, a.eventListeners", a.eventListeners);
+        if (a.eventListeners) {
+            for (const listener of a.eventListeners) {
+                x.addEventListener(listener.event, listener.handler);
+            }
+        }
+        return x;
+    };
+    a.cloneWithEventListeners = () => {
+        return tmpClone(a);
     };
     a.secret_id = id();
-    a.addEventListener = function (t, b, c) {
-        console.log("adding fake event listener");
-        a.listeners.push({
-            name: t,
-            source: b.toString()
-        });
-        a.realAddEventListener(t, b, c);
-    };
     for (const arg of args) {
         if (typeof arg === "string") {
             let text = document.createTextNode(arg);
@@ -55,21 +64,6 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
                     catch (e) {
                         console.log("error in hard-coded event listener");
                     }
-                });
-                a.listeners.push({
-                    name: `newState-${a.secret_id}`,
-                    source: `(newState) => {
-                        const arg = ${arg.toString()}
-                        console.log("string-coded event listener called")
-
-                            try {
-                                a.append(arg(newState.detail))
-                            } catch {
-                                let a = document.querySelector("[arg-id='${argElem.secret_id}']")
-                                a.innerHTML = '';
-                                a.append(arg(newState.detail).attr("arg-id","${argElem.secret_id}"))
-                            }
-                        }`
                 });
                 a.append(argElem);
             }
