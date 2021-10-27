@@ -35,6 +35,8 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
         else {
             if (arg instanceof Function) {
                 a.attr("listener-id", a.secret_id);
+                let argElem = arg(a.state);
+                argElem.attr("arg-id", argElem.secret_id);
                 a.addEventListener(`newState-${a.secret_id}`, (newState) => {
                     console.log("hard-coded event listener called");
                     try {
@@ -47,7 +49,8 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
                 document.addEventListener(`newState-${a.secret_id}`, (newState) => {
                     console.log("hard-coded event listener called");
                     try {
-                        a.append(arg(newState.detail));
+                        argElem.innerHTML = '';
+                        argElem.append(arg(newState.detail));
                     }
                     catch (e) {
                         console.log("error in hard-coded event listener");
@@ -62,12 +65,13 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
                             try {
                                 a.append(arg(newState.detail))
                             } catch {
-                                let a = document.querySelector("[listener-id='${a.secret_id}']")
+                                let a = document.querySelector("[arg-id='${argElem.secret_id}']")
                                 a.innerHTML = '';
-                                a.append(arg(newState.detail))
+                                a.append(arg(newState.detail).attr("arg-id","${argElem.secret_id}"))
                             }
                         }`
                 });
+                a.append(argElem);
             }
             else {
                 a.append(arg);

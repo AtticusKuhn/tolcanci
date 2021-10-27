@@ -7,7 +7,7 @@ function main() {
     const comps = div("we allow for reusable components", temp, temp)
     const b = button("press me")
     const counterExample = div<number>(
-        (count) => `hello ${count}`,
+        (count) => div(`hello ${count}`),
 
         b,
     ).vname("counterExample")

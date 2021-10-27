@@ -2,7 +2,7 @@ import { JSDOM } from "jsdom"
 //@ts-ignore
 import client from "./client"
 type child<T> = string | extendedElem<T>
-type reactiveChild<T> = (x: T) => child<T>;
+type reactiveChild<T> = (x: T) => extendedElem<T>;
 interface extendedElem<T> extends HTMLElement {
     listeners: { name: String, source: string }[];
     realAddEventListener: HTMLElement["addEventListener"];
@@ -50,6 +50,8 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
         else {
             if (arg instanceof Function) {
                 a.attr("listener-id", a.secret_id)
+                let argElem = arg(a.state)
+                argElem.attr("arg-id", argElem.secret_id)
                 //@ts-ignore
                 a.addEventListener(`newState-${a.secret_id}`, (newState: CustomEvent<T>) => {
                     console.log("hard-coded event listener called")
@@ -63,7 +65,8 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
                 document.addEventListener(`newState-${a.secret_id}`, (newState: CustomEvent<T>) => {
                     console.log("hard-coded event listener called")
                     try {
-                        a.append(arg(newState.detail))
+                        argElem.innerHTML = '';
+                        argElem.append(arg(newState.detail))
                     } catch (e) {
                         console.log("error in hard-coded event listener")
                     }
@@ -77,12 +80,13 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
                             try {
                                 a.append(arg(newState.detail))
                             } catch {
-                                let a = document.querySelector("[listener-id='${a.secret_id}']")
+                                let a = document.querySelector("[arg-id='${argElem.secret_id}']")
                                 a.innerHTML = '';
-                                a.append(arg(newState.detail))
+                                a.append(arg(newState.detail).attr("arg-id","${argElem.secret_id}"))
                             }
                         }`
                 })
+                a.append(argElem)
             } else {
                 // clone node causes probles with event listeners
                 a.append(arg/*.cloneNode(true)*/);

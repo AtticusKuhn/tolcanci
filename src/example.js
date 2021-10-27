@@ -10,7 +10,7 @@ function main() {
     const temp = (0, index_1.div)("I am a reusable component");
     const comps = (0, index_1.div)("we allow for reusable components", temp, temp);
     const b = (0, index_1.button)("press me");
-    const counterExample = (0, index_1.div)((count) => `hello ${count}`, b).vname("counterExample");
+    const counterExample = (0, index_1.div)((count) => (0, index_1.div)(`hello ${count}`), b).vname("counterExample");
     counterExample.setState(1);
     b.addEventListener("click", () => {
         counterExample.setState(counterExample.state + 1);
