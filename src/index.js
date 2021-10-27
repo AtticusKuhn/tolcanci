@@ -21,7 +21,6 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
     a.secret_id = id();
     a.addEventListener = function (t, b, c) {
         console.log("adding fake event listener");
-        console.log("in fake event listener, function source is", b.toString());
         a.listeners.push({
             name: t,
             source: b.toString()
@@ -35,8 +34,9 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
         }
         else {
             if (arg instanceof Function) {
-                document.addEventListener(`newState-${a.secret_id}`, (newState) => {
-                    console.log("hard-coded event listener");
+                a.attr("listener-id", a.secret_id);
+                a.addEventListener(`newState-${a.secret_id}`, (newState) => {
+                    console.log("hard-coded event listener called");
                     try {
                         a.append(arg(newState.detail));
                     }
@@ -44,12 +44,20 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
                         console.log("error in hard-coded event listener");
                     }
                 });
-                a.attr("listener-id", a.secret_id);
+                document.addEventListener(`newState-${a.secret_id}`, (newState) => {
+                    console.log("hard-coded event listener called");
+                    try {
+                        a.append(arg(newState.detail));
+                    }
+                    catch (e) {
+                        console.log("error in hard-coded event listener");
+                    }
+                });
                 a.listeners.push({
                     name: `newState-${a.secret_id}`,
                     source: `(newState) => {
                         const arg = ${arg.toString()}
-                        console.log("string-coded event listener")
+                        console.log("string-coded event listener called")
 
                             try {
                                 a.append(arg(newState.detail))
@@ -62,7 +70,7 @@ const simpleElementBuilders = (document) => (tagName) => (...args) => {
                 });
             }
             else {
-                a.append(arg.cloneNode(true));
+                a.append(arg);
             }
         }
     }
@@ -93,6 +101,7 @@ exports.makeApplication = makeApplication;
 const getJs = (node) => {
     var _a;
     let js = "";
+    js += `//generaing js for ${node.secret_id}\n`;
     const id = Math.random().toString();
     if (node.state !== null && node.state !== undefined) {
         node.attr('data-id', id);
@@ -102,6 +111,7 @@ const getJs = (node) => {
         ${node.varName}.secret_id = "${node.secret_id}";\n
         `;
     }
+    console.log("listeners in getJs", node === null || node === void 0 ? void 0 : node.listeners);
     if (((_a = node === null || node === void 0 ? void 0 : node.listeners) === null || _a === void 0 ? void 0 : _a.length) > 0) {
         console.log("node has a listener");
         node.attr('data-id', id);

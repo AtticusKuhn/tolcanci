@@ -8,11 +8,10 @@ const index_1 = require("./index");
 function main() {
     const intro = (0, index_1.div)("welcome to tolcanci, a UI framework");
     const temp = (0, index_1.div)("I am a reusable component");
-    const comps = (0, index_1.div)("we allow for reusablwe components", temp, temp);
-    const b = (0, index_1.button)("press me to increment cout");
-    const displayCount = (count) => (0, index_1.p)("the count is", count.toString());
-    const counterExample = (0, index_1.div)(b, displayCount).vname("counterExample");
-    counterExample.setState(0);
+    const comps = (0, index_1.div)("we allow for reusable components", temp, temp);
+    const b = (0, index_1.button)("press me");
+    const counterExample = (0, index_1.div)((count) => `hello ${count}`, b).vname("counterExample");
+    counterExample.setState(1);
     b.addEventListener("click", () => {
         counterExample.setState(counterExample.state + 1);
     });

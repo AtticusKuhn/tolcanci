@@ -17,7 +17,7 @@ interface extendedElem<T> extends HTMLElement {
 const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
 const randomLetter = () => String.fromCharCode(randomInRange(97)(122))
 const id = (): string => new Array(10).fill(0).map(_x => randomLetter()).join("")
-export const simpleElementBuilders = (document: Document) => (tagName: string) => <T>(...args: (child<T> | reactiveChild<T>)[]): extendedElem<T> => {
+export const simpleElementBuilders = (document: Document) => (tagName: string) => <T>(...args: (child<any> | reactiveChild<any>)[]): extendedElem<T> => {
     // const { document } = (new JSDOM(``)).window;
     let a = document.createElement(tagName) as extendedElem<T>;
     a.realAddEventListener = a.addEventListener;
@@ -35,7 +35,7 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
         console.log("adding fake event listener")
         // console.log("t", t)
         // console.log("b", b)
-        console.log("in fake event listener, function source is", b.toString())
+        // console.log("in fake event listener, function source is", b.toString())
         a.listeners.push({
             name: t,
             source: b.toString()
@@ -49,27 +49,30 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
         }
         else {
             if (arg instanceof Function) {
+                a.attr("listener-id", a.secret_id)
                 //@ts-ignore
-                document.addEventListener(`newState-${a.secret_id}`, (newState: CustomEvent<T>) => {
-                    console.log("hard-coded event listener")
+                a.addEventListener(`newState-${a.secret_id}`, (newState: CustomEvent<T>) => {
+                    console.log("hard-coded event listener called")
                     try {
                         a.append(arg(newState.detail))
                     } catch (e) {
                         console.log("error in hard-coded event listener")
                     }
-                    // try {
-                    //     //@ts-ignore
-                    //     a.appendChild(arg(newState.detail))
-                    // } catch {
-                    //     a.append(arg(newState.detail))
-                    // }
+                });
+                //@ts-ignore
+                document.addEventListener(`newState-${a.secret_id}`, (newState: CustomEvent<T>) => {
+                    console.log("hard-coded event listener called")
+                    try {
+                        a.append(arg(newState.detail))
+                    } catch (e) {
+                        console.log("error in hard-coded event listener")
+                    }
                 })
-                a.attr("listener-id", a.secret_id);
                 a.listeners.push({
                     name: `newState-${a.secret_id}`,
                     source: `(newState) => {
                         const arg = ${arg.toString()}
-                        console.log("string-coded event listener")
+                        console.log("string-coded event listener called")
 
                             try {
                                 a.append(arg(newState.detail))
@@ -81,7 +84,8 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
                         }`
                 })
             } else {
-                a.append(arg.cloneNode(true));
+                // clone node causes probles with event listeners
+                a.append(arg/*.cloneNode(true)*/);
             }
         }
     }
@@ -93,7 +97,7 @@ export const simpleElementBuilders = (document: Document) => (tagName: string) =
         document.dispatchEvent(event)
         return newState;
     }
-
+    // console.log("a.listeners", a.listeners)
     return a;
 };
 export const simpleElement = simpleElementBuilders((new JSDOM(``)).window.document)
@@ -114,6 +118,7 @@ export const makeApplication = (x: HTMLElement): string => {
 }
 const getJs = (node: extendedElem<any>): string => {
     let js = ""
+    js += `//generaing js for ${node.secret_id}\n`
     const id = Math.random().toString()
 
     if (node.state !== null && node.state !== undefined) {
@@ -129,6 +134,7 @@ const getJs = (node: extendedElem<any>): string => {
         // }
         // `
     }
+    console.log("listeners in getJs", node?.listeners)
     if (node?.listeners?.length > 0) {
         console.log("node has a listener")
         node.attr('data-id', id)
