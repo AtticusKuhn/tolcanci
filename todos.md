@@ -1,0 +1,4 @@
+- [ ] styling css
+- [ ] static props/ssr prosp
+- [ ] routing/links
+-  [ ] fallback/loading components
