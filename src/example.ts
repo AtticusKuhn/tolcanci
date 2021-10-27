@@ -1,5 +1,5 @@
 import { button, div, makeApplication, } from "./index";
-
+import https from "https"
 const intro = div("welcome to tolcanci, a UI framework")
 const temp = div("I am a reusable component")
 const comps = div("we allow for reusable components", temp, temp)
@@ -16,12 +16,23 @@ counterExample.setState(1)
 b.addEventListener("click", () => {
     counterExample.setState(counterExample.state + 1)
 })
+const getTodos = () => new Promise<string>((resolve) => {
+    https.get(`https://jsonplaceholder.typicode.com/todos/1`, res => {
+        res.on('data', d =>
+            resolve(d)
+        )
+    })
+})
 const state = div("we allow for stateful components", counterExample)
+const staticProps = div<string>("this is a component with static props (generated at build time)",
+    (string) => div(string))
+    .setStaticProps(getTodos)
 // console.log("b.addEventListener(", b.addEventListener)
 const main = div(
     intro,
     comps,
-    state
+    state,
+    staticProps
 )
 export const app = makeApplication(main)
 

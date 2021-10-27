@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.simpleElementBuilders = void 0;
+const isServer = () => typeof window === "undefined";
 const randomInRange = (low) => (high) => Math.floor(Math.random() * (high - low) + low);
 const randomLetter = () => String.fromCharCode(randomInRange(97)(122));
 const id = () => new Array(10).fill(0).map(_x => randomLetter()).join("");
@@ -10,6 +11,10 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         : tagName);
     a.attr = (b, c) => {
         a.setAttribute(b, c);
+        return a;
+    };
+    a.setStaticProps = (x) => {
+        a.staticProps = x();
         return a;
     };
     a.eventListeners = [];
@@ -80,6 +85,14 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         document.dispatchEvent(event);
         return a;
     };
+    a.getStaticProps = async () => {
+        return await a.staticProps;
+    };
+    if (isServer() && a.getStaticProps) {
+        a.getStaticProps().then((state) => {
+            a.setState(state);
+        });
+    }
     return a;
 };
 exports.simpleElementBuilders = simpleElementBuilders;

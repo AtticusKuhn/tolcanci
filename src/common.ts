@@ -9,9 +9,11 @@ export interface extendedElem<T> extends HTMLElement {
     cloneWithEventListeners: () => extendedElem<T>;
     eventListeners: { event: string, handler: (this: HTMLElement, ev: any) => any }[];
     realEventListener: HTMLElement["addEventListener"];
-
-
+    setStaticProps: (x: () => Promise<T>) => extendedElem<T>;
+    getStaticProps: () => Promise<T>;
+    staticProps: Promise<T>;
 }
+const isServer = (): boolean => typeof window === "undefined";
 const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
 const randomLetter = () => String.fromCharCode(randomInRange(97)(122))
 const id = (): string => new Array(10).fill(0).map(_x => randomLetter()).join("")
@@ -24,6 +26,11 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
         a.setAttribute(b, c)
         return a;
     }
+    a.setStaticProps = (x) => {
+        a.staticProps = x();
+        return a;
+    }
+
     a.eventListeners = [];
     a.realEventListener = a.addEventListener;
     a.addEventListener = (event: string, handler: (this: HTMLElement, ev: any) => any) => {
@@ -96,6 +103,15 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
         console.log(`serverside braodcasting`, `newState-${a.secret_id}`)
         document.dispatchEvent(event)
         return a;
+    }
+    a.getStaticProps = async () => {
+        return await a.staticProps;
+    }
+    if (isServer() && a.getStaticProps) {
+        a.getStaticProps().then((state) => {
+            a.setState(state)
+        })
+
     }
     // console.log("a.listeners", a.listeners)
     return a;
