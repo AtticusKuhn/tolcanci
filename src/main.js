@@ -5,4 +5,4 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const example_1 = require("./example");
 const fs_1 = __importDefault(require("fs"));
-fs_1.default.writeFileSync("./example.html", example_1.app);
+example_1.app.then(a => fs_1.default.writeFileSync("./example.html", a));

@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.simpleElementBuilders = void 0;
+exports.simpleElementBuilders = exports.id = void 0;
 const isServer = () => typeof window === "undefined";
 const randomInRange = (low) => (high) => Math.floor(Math.random() * (high - low) + low);
 const randomLetter = () => String.fromCharCode(randomInRange(97)(122));
 const id = () => new Array(10).fill(0).map(_x => randomLetter()).join("");
+exports.id = id;
 const simpleElementBuilders = (window) => (tagName) => (...args) => {
+    var _a;
     let document = window.document;
     let a = (typeof tagName === "string" ? document.createElement(tagName)
         : tagName);
@@ -14,13 +16,13 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         return a;
     };
     a.setStaticProps = (x) => {
-        a.staticProps = x();
+        a.staticProps = x;
+        console.log("a.staticProps was set for a", a);
         return a;
     };
     a.eventListeners = [];
     a.realEventListener = a.addEventListener;
     a.addEventListener = (event, handler) => {
-        console.log("addEventListener called", event);
         a.eventListeners.push({ event, handler });
         a.realEventListener(event, handler);
     };
@@ -40,7 +42,7 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
     a.cloneWithEventListeners = () => {
         return tmpClone(a);
     };
-    a.secret_id = id();
+    a.secret_id = (0, exports.id)();
     for (const arg of args) {
         if (typeof arg === "string") {
             let text = document.createTextNode(arg);
@@ -52,7 +54,6 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
                 let argElem = arg(a.state);
                 argElem.attr("arg-id", argElem.secret_id);
                 a.addEventListener(`newState-${a.secret_id}`, (newState) => {
-                    console.log("hard-coded event listener called");
                     try {
                         a.append(arg(newState.detail));
                     }
@@ -81,16 +82,29 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         let { CustomEvent } = window;
         const event = new CustomEvent(`newState-${a.secret_id}`, { detail: newState });
         a.state = newState;
-        console.log(`serverside braodcasting`, `newState-${a.secret_id}`);
         document.dispatchEvent(event);
         return a;
     };
-    a.getStaticProps = async () => {
-        return await a.staticProps;
+    const recursiveStaticProps = async (a) => {
+        for (let i = 0; i < a.children.length; i++) {
+            await recursiveStaticProps(a.children[i]);
+        }
+        if (a.staticProps !== undefined) {
+            console.log("getStaticProps function called");
+            let props = await a.staticProps();
+            a.setState(props);
+            return props;
+        }
     };
-    if (isServer() && a.getStaticProps) {
-        a.getStaticProps().then((state) => {
-            a.setState(state);
+    a.getStaticProps = async () => {
+        console.log("getStaticProps called");
+        return await recursiveStaticProps(a);
+    };
+    if (isServer()) {
+        (_a = a.getStaticProps()) === null || _a === void 0 ? void 0 : _a.then((state) => {
+            if (state) {
+                a.setState(state);
+            }
         });
     }
     return a;

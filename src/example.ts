@@ -19,13 +19,15 @@ b.addEventListener("click", () => {
 const getTodos = () => new Promise<string>((resolve) => {
     https.get(`https://jsonplaceholder.typicode.com/todos/1`, res => {
         res.on('data', d =>
-            resolve(d)
+            resolve(d.toString())
         )
     })
 })
 const state = div("we allow for stateful components", counterExample)
 const staticProps = div<string>("this is a component with static props (generated at build time)",
-    (string) => div(string))
+    //@ts-ignore    
+    (string) => div(string)
+)
     .setStaticProps(getTodos)
 // console.log("b.addEventListener(", b.addEventListener)
 const main = div(

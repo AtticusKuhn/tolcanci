@@ -1,15 +1,17 @@
-import { JSDOM } from "jsdom"
 import fs from "fs"
-//@ts-ignore
-import client from "./client"
-import { simpleElementBuilders, extendedElem } from "./common"
+import { JSDOM } from "jsdom"
+import { extendedElem, simpleElementBuilders } from "./common"
+
 //@ts-ignore
 export const simpleElement = simpleElementBuilders((new JSDOM(``)).window)
 
 export const [div, p, button] = ["div", "p", "button"].map(simpleElement)
-export const makeApplication = (x: HTMLElement): string => {
+export const makeApplication = async (x: extendedElem<any>): Promise<string> => {
     // const { document } = (new JSDOM(``)).window;
     const tmp = div()
+    const a = await x.getStaticProps()
+    console.log("result of static props is", a)
+    console.log("making app")
     tmp.appendChild(x);
     const js = getJs(tmp)
     // console.log("js", js)

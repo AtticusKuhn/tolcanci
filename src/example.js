@@ -18,7 +18,7 @@ b.addEventListener("click", () => {
 });
 const getTodos = () => new Promise((resolve) => {
     https_1.default.get(`https://jsonplaceholder.typicode.com/todos/1`, res => {
-        res.on('data', d => resolve(d));
+        res.on('data', d => resolve(d.toString()));
     });
 });
 const state = (0, index_1.div)("we allow for stateful components", counterExample);

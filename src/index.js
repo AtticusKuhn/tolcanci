@@ -5,13 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.makeApplication = exports.button = exports.p = exports.div = exports.simpleElement = void 0;
-const jsdom_1 = require("jsdom");
 const fs_1 = __importDefault(require("fs"));
+const jsdom_1 = require("jsdom");
 const common_1 = require("./common");
 exports.simpleElement = (0, common_1.simpleElementBuilders)((new jsdom_1.JSDOM(``)).window);
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
-const makeApplication = (x) => {
+const makeApplication = async (x) => {
     const tmp = (0, exports.div)();
+    const a = await x.getStaticProps();
+    console.log("result of static props is", a);
+    console.log("making app");
     tmp.appendChild(x);
     const js = getJs(tmp);
     let html = tmp.innerHTML;

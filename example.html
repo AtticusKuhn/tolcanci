@@ -5,8 +5,8 @@
         <div>I am a reusable component</div>
     </div>
     <div>we allow for stateful components
-        <div listener-id="hfomgkjdtu">
-            <div arg-id="lcbmijiped">
+        <div listener-id="vfmcjxsgwf">
+            <div arg-id="rcygfyynky">
                 <div>
                     <div>the current count 1</div>
                     <div>the next count wil be 2</div>
@@ -15,8 +15,15 @@
             <button>press me</button>
         </div>
     </div>
-    <div listener-id="sgyldoqvta">this is a component with static props (generated at build time)
-        <div arg-id="opicsnqdcx">undefined</div>
+    <div listener-id="eqobnqkivc">this is a component with static props (generated at build time)
+        <div arg-id="onjjmqkvth">
+            <div>{
+  "userId": 1,
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false
+}</div>
+        </div>
     </div>
 </div>
 <script src="dist/build.js"></script>
@@ -43,7 +50,7 @@ b.addEventListener("click", () => {
 });
 const getTodos = () => new Promise((resolve) => {
     https_1.default.get(`https://jsonplaceholder.typicode.com/todos/1`, res => {
-        res.on('data', d => resolve(d));
+        res.on('data', d => resolve(d.toString()));
     });
 });
 const state = (0, index_1.div)("we allow for stateful components", counterExample);
