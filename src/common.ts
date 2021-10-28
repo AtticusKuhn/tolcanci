@@ -12,6 +12,7 @@ export interface extendedElem<T> extends HTMLElement {
     setStaticProps: (x: () => Promise<T>) => extendedElem<T>;
     getStaticProps: () => Promise<Record<string, any>>;
     staticProps: () => Promise<T>;
+    setCss: (x: string) => extendedElem<T>;
 }
 const isServer = (): boolean => typeof window === "undefined";
 // const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
@@ -130,14 +131,14 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
     a.getStaticProps = async (): Promise<Record<string, any>> => {
         return await recursiveStaticProps(a);
     }
-    // if (isServer()) {
-    //     a.getStaticProps()?.then((state) => {
-    //         if (state) {
-    //             a.setState(state)
-    //         }
-    //     })
-
-    // }
-    // console.log("a.listeners", a.listeners)
+    a.setCss = (css: string) => {
+        let split = css.split(";")
+        for (const line of split) {
+            let [prop, val] = line.split(":")
+            //@ts-ignore
+            a.style[prop] = val
+        }
+        return a;
+    }
     return a;
 };

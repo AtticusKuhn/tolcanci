@@ -24,5 +24,6 @@ const getTodos = () => new Promise((resolve) => {
 const state = (0, index_1.div)("we allow for stateful components", counterExample);
 const staticProps = (0, index_1.div)("this is a component with static props (generated at build time)", (string) => (0, index_1.div)(string))
     .setStaticProps(getTodos);
-const main = (0, index_1.div)(intro, comps, state, staticProps);
+const style = (0, index_1.div)("I have style", (0, index_1.p)("and so do I")).setCss("color:red");
+const main = (0, index_1.div)(intro, comps, state, staticProps, style);
 exports.app = (0, index_1.makeApplication)(main);

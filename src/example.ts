@@ -1,4 +1,4 @@
-import { button, div, makeApplication, } from "./index";
+import { button, div, makeApplication, p, } from "./index";
 import https from "https"
 const intro = div("welcome to tolcanci, a UI framework")
 const temp = div("I am a reusable component")
@@ -29,12 +29,16 @@ const staticProps = div<string>("this is a component with static props (generate
     (string) => div(string)
 )
     .setStaticProps(getTodos)
+const style = div("I have style",
+    p("and so do I")
+).setCss("color:red")
 // console.log("b.addEventListener(", b.addEventListener)
 const main = div(
     intro,
     comps,
     state,
-    staticProps
+    staticProps,
+    style
 )
 export const app = makeApplication(main)
 

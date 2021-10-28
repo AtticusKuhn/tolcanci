@@ -101,6 +101,14 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
     a.getStaticProps = async () => {
         return await recursiveStaticProps(a);
     };
+    a.setCss = (css) => {
+        let split = css.split(";");
+        for (const line of split) {
+            let [prop, val] = line.split(":");
+            a.style[prop] = val;
+        }
+        return a;
+    };
     return a;
 };
 exports.simpleElementBuilders = simpleElementBuilders;
