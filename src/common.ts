@@ -1,5 +1,6 @@
 
 export type child<T> = string | extendedElem<T>
+type reactive<A, state> = A | ((state: state) => A);
 export type reactiveChild<T> = (x: T) => extendedElem<T>;
 export interface extendedElem<T> extends HTMLElement {
     state: T;
@@ -12,7 +13,10 @@ export interface extendedElem<T> extends HTMLElement {
     setStaticProps: (x: () => Promise<T>) => extendedElem<T>;
     getStaticProps: () => Promise<Record<string, any>>;
     staticProps: () => Promise<T>;
-    setCss: (x: string) => extendedElem<T>;
+    setCss: (x: reactive<string, T>) => extendedElem<T>;
+    onStateChangeF: Array<(x: T) => any>;
+    onStateChange: (f: (x: T) => any) => void;
+
 }
 const isServer = (): boolean => typeof window === "undefined";
 // const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
@@ -31,9 +35,13 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
     a.setStaticProps = (x) => {
         if (isServer()) {
             a.staticProps = x;
-            console.log("a.staticProps was set for a", a)
+            // console.log("a.staticProps was set for a", a)
         }
         return a;
+    }
+    a.onStateChangeF = []
+    a.onStateChange = (f) => {
+        a.onStateChangeF.push(f);
     }
 
     a.eventListeners = [];
@@ -101,6 +109,9 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
         }
     }
     a.setState = (newState: T) => {
+        if (a.onStateChangeF.length > 0) {
+            a.onStateChangeF.forEach(f => f(newState))
+        }
         //@ts-ignore
         let { CustomEvent } = window;
         const event = new CustomEvent<T>(`newState-${a.secret_id}`, { detail: newState });
@@ -131,12 +142,26 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
     a.getStaticProps = async (): Promise<Record<string, any>> => {
         return await recursiveStaticProps(a);
     }
-    a.setCss = (css: string) => {
-        let split = css.split(";")
-        for (const line of split) {
-            let [prop, val] = line.split(":")
-            //@ts-ignore
-            a.style[prop] = val
+    a.setCss = (css: reactive<string, T>) => {
+        if (typeof css === "string") {
+            let split = css.split(";")
+            for (const line of split) {
+                let [prop, val] = line.split(":")
+                if (!prop || !val) {
+                    throw new Error(`invalid css prop: ${prop} and val: ${val}`)
+                }
+                //@ts-ignore
+                a.style[prop] = val
+            }
+        } else {
+            console.log("it's a function")
+            a.onStateChange((state) => {
+                console.log("onstatechange css")
+                a.setCss(css(state))
+            })
+            let cssVal = css(a.state)
+            console.log("css is", cssVal)
+            a.setCss(cssVal)
         }
         return a;
     }

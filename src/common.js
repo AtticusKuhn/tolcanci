@@ -16,9 +16,12 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
     a.setStaticProps = (x) => {
         if (isServer()) {
             a.staticProps = x;
-            console.log("a.staticProps was set for a", a);
         }
         return a;
+    };
+    a.onStateChangeF = [];
+    a.onStateChange = (f) => {
+        a.onStateChangeF.push(f);
     };
     a.eventListeners = [];
     a.realEventListener = a.addEventListener;
@@ -79,6 +82,9 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         }
     }
     a.setState = (newState) => {
+        if (a.onStateChangeF.length > 0) {
+            a.onStateChangeF.forEach(f => f(newState));
+        }
         let { CustomEvent } = window;
         const event = new CustomEvent(`newState-${a.secret_id}`, { detail: newState });
         a.state = newState;
@@ -102,10 +108,25 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         return await recursiveStaticProps(a);
     };
     a.setCss = (css) => {
-        let split = css.split(";");
-        for (const line of split) {
-            let [prop, val] = line.split(":");
-            a.style[prop] = val;
+        if (typeof css === "string") {
+            let split = css.split(";");
+            for (const line of split) {
+                let [prop, val] = line.split(":");
+                if (!prop || !val) {
+                    throw new Error(`invalid css prop: ${prop} and val: ${val}`);
+                }
+                a.style[prop] = val;
+            }
+        }
+        else {
+            console.log("it's a function");
+            a.onStateChange((state) => {
+                console.log("onstatechange css");
+                a.setCss(css(state));
+            });
+            let cssVal = css(a.state);
+            console.log("css is", cssVal);
+            a.setCss(cssVal);
         }
         return a;
     };

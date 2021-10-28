@@ -7,7 +7,7 @@ const b = button("press me")
 const displayCount = (count: number) => div<null>(
     div(`the current count ${count}`),
     div(`the next count wil be ${count + 1}`),
-)
+).setCss(`font-size: ${count + 10}px`)
 const counterExample = div<number>(
     displayCount,
     b,
