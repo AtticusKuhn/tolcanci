@@ -19,7 +19,7 @@ b.addEventListener("click", () => {
 const getTodos = () => new Promise<string>((resolve) => {
     https.get(`https://jsonplaceholder.typicode.com/todos/1`, res => {
         res.on('data', d =>
-            resolve(d.toString())
+            resolve(JSON.parse(d.toString())["title"])
         )
     })
 })

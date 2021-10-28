@@ -16,7 +16,9 @@ const makeApplication = async (x) => {
     console.log("result of static props is", a);
     console.log("making app");
     tmp.appendChild(x);
-    const js = getJs(tmp);
+    let js = getJs(tmp);
+    const makeStr = ([a, b]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
+    js += Object.entries(a).map(makeStr).join("\n");
     let html = tmp.innerHTML;
     html += "<script src='dist/build.js'></script>\n";
     html += `<script defer>${js}</script>\n`;

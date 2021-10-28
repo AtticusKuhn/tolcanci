@@ -1,28 +1,23 @@
 
-<div>
-    <div>welcome to tolcanci, a UI framework</div>
-    <div>we allow for reusable components
-        <div>I am a reusable component</div>
+<div secret-id="14">
+    <div secret-id="0">welcome to tolcanci, a UI framework</div>
+    <div secret-id="2">we allow for reusable components
+        <div secret-id="1">I am a reusable component</div>
     </div>
-    <div>we allow for stateful components
-        <div listener-id="vfmcjxsgwf">
-            <div arg-id="rcygfyynky">
-                <div>
-                    <div>the current count 1</div>
-                    <div>the next count wil be 2</div>
+    <div secret-id="11">we allow for stateful components
+        <div listener-id="4" secret-id="4">
+            <div secret-id="7" arg-id="7">
+                <div secret-id="10">
+                    <div secret-id="8">the current count 1</div>
+                    <div secret-id="9">the next count wil be 2</div>
                 </div>
             </div>
-            <button>press me</button>
+            <button secret-id="3">press me</button>
         </div>
     </div>
-    <div listener-id="eqobnqkivc">this is a component with static props (generated at build time)
-        <div arg-id="onjjmqkvth">
-            <div>{
-  "userId": 1,
-  "id": 1,
-  "title": "delectus aut autem",
-  "completed": false
-}</div>
+    <div listener-id="12" secret-id="12">this is a component with static props (generated at build time)
+        <div secret-id="13" arg-id="13">
+            <div secret-id="16">delectus aut autem</div>
         </div>
     </div>
 </div>
@@ -50,7 +45,7 @@ b.addEventListener("click", () => {
 });
 const getTodos = () => new Promise((resolve) => {
     https_1.default.get(`https://jsonplaceholder.typicode.com/todos/1`, res => {
-        res.on('data', d => resolve(d.toString()));
+        res.on('data', d => resolve(JSON.parse(d.toString())["title"]));
     });
 });
 const state = (0, index_1.div)("we allow for stateful components", counterExample);
@@ -60,4 +55,4 @@ const main = (0, index_1.div)(intro, comps, state, staticProps);
 exports.app = (0, index_1.makeApplication)(main);
 document.body.innerHTML = '';
 document.body.append(main);
-</script>
+document.querySelector("[secret-id='12']").setState( "delectus aut autem");</script>

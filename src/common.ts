@@ -10,13 +10,14 @@ export interface extendedElem<T> extends HTMLElement {
     eventListeners: { event: string, handler: (this: HTMLElement, ev: any) => any }[];
     realEventListener: HTMLElement["addEventListener"];
     setStaticProps: (x: () => Promise<T>) => extendedElem<T>;
-    getStaticProps: () => Promise<T>;
+    getStaticProps: () => Promise<Record<string, any>>;
     staticProps: () => Promise<T>;
 }
 const isServer = (): boolean => typeof window === "undefined";
-const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
-const randomLetter = () => String.fromCharCode(randomInRange(97)(122))
-export const id = (): string => new Array(10).fill(0).map(_x => randomLetter()).join("")
+// const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
+// const randomLetter = () => String.fromCharCode(randomInRange(97)(122))
+let idCounter = 0
+export const id = (): string => (idCounter++).toString()//new Array(10).fill(0).map(_x => randomLetter()).join("")
 export const simpleElementBuilders = (window: Window) => (tagName: string | HTMLElement) => <T>(...args: (child<any> | reactiveChild<any>)[]): extendedElem<T> => {
     // const { document } = (new JSDOM(``)).window;
     let document = window.document
@@ -27,16 +28,10 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
         return a;
     }
     a.setStaticProps = (x) => {
-        a.staticProps = x;
-        console.log("a.staticProps was set for a", a)
-        // if (isServer()) {
-        //     console.log("isServer")
-        //     x().then(state => {
-        //         console.log('got state', state)
-        //         a.setState(state);
-        //         console.log("state is now", a, a.state)
-        //     })
-        // }
+        if (isServer()) {
+            a.staticProps = x;
+            console.log("a.staticProps was set for a", a)
+        }
         return a;
     }
 
@@ -113,34 +108,36 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
         document.dispatchEvent(event)
         return a;
     }
-    //@ts-ignore
-    const recursiveStaticProps = async (a: extendedElem<any>) => {
+    const recursiveStaticProps = async (a: extendedElem<any>): Promise<Record<string, any>> => {
+        let record: Record<string, any> = {}
         for (let i = 0; i < a.children.length; i++) {
             // try {
             //@ts-ignore
-            await recursiveStaticProps(a.children[i])
+            record = { ...record, ...await recursiveStaticProps(a.children[i]) }
             // } catch { }
         }
         if (a.staticProps !== undefined) {
-            console.log("getStaticProps function called")
+
             let props = await a.staticProps()
             a.setState(props)
+            record[a.secret_id] = props;
             // console.log("a has static props")
-            return props;
+            // return props;
         }
+        return record;
     }
-    a.getStaticProps = async () => {
-        console.log("getStaticProps called")
+    a.attr("secret-id", a.secret_id)
+    a.getStaticProps = async (): Promise<Record<string, any>> => {
         return await recursiveStaticProps(a);
     }
-    if (isServer()) {
-        a.getStaticProps()?.then((state) => {
-            if (state) {
-                a.setState(state)
-            }
-        })
+    // if (isServer()) {
+    //     a.getStaticProps()?.then((state) => {
+    //         if (state) {
+    //             a.setState(state)
+    //         }
+    //     })
 
-    }
+    // }
     // console.log("a.listeners", a.listeners)
     return a;
 };

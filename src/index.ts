@@ -13,7 +13,9 @@ export const makeApplication = async (x: extendedElem<any>): Promise<string> => 
     console.log("result of static props is", a)
     console.log("making app")
     tmp.appendChild(x);
-    const js = getJs(tmp)
+    let js = getJs(tmp);
+    const makeStr = ([a, b]: [string, any]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
+    js += Object.entries(a).map(makeStr).join("\n");
     // console.log("js", js)
     let html = tmp.innerHTML;
     html += "<script src='dist/build.js'></script>\n";

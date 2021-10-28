@@ -2,12 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.simpleElementBuilders = exports.id = void 0;
 const isServer = () => typeof window === "undefined";
-const randomInRange = (low) => (high) => Math.floor(Math.random() * (high - low) + low);
-const randomLetter = () => String.fromCharCode(randomInRange(97)(122));
-const id = () => new Array(10).fill(0).map(_x => randomLetter()).join("");
+let idCounter = 0;
+const id = () => (idCounter++).toString();
 exports.id = id;
 const simpleElementBuilders = (window) => (tagName) => (...args) => {
-    var _a;
     let document = window.document;
     let a = (typeof tagName === "string" ? document.createElement(tagName)
         : tagName);
@@ -16,8 +14,10 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         return a;
     };
     a.setStaticProps = (x) => {
-        a.staticProps = x;
-        console.log("a.staticProps was set for a", a);
+        if (isServer()) {
+            a.staticProps = x;
+            console.log("a.staticProps was set for a", a);
+        }
         return a;
     };
     a.eventListeners = [];
@@ -86,27 +86,21 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         return a;
     };
     const recursiveStaticProps = async (a) => {
+        let record = {};
         for (let i = 0; i < a.children.length; i++) {
-            await recursiveStaticProps(a.children[i]);
+            record = { ...record, ...await recursiveStaticProps(a.children[i]) };
         }
         if (a.staticProps !== undefined) {
-            console.log("getStaticProps function called");
             let props = await a.staticProps();
             a.setState(props);
-            return props;
+            record[a.secret_id] = props;
         }
+        return record;
     };
+    a.attr("secret-id", a.secret_id);
     a.getStaticProps = async () => {
-        console.log("getStaticProps called");
         return await recursiveStaticProps(a);
     };
-    if (isServer()) {
-        (_a = a.getStaticProps()) === null || _a === void 0 ? void 0 : _a.then((state) => {
-            if (state) {
-                a.setState(state);
-            }
-        });
-    }
     return a;
 };
 exports.simpleElementBuilders = simpleElementBuilders;
