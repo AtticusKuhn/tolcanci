@@ -40,6 +40,8 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
         if (isServer()) {
             a.staticProps = x;
             // console.log("a.staticProps was set for a", a)
+        } else {
+            throw new Error("static props should never be called on client side")
         }
         return a;
     }

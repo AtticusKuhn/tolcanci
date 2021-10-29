@@ -16,9 +16,13 @@ const makeApplication = async (x) => {
     console.log("result of static props is", a);
     console.log("making app");
     tmp.appendChild(x);
+    let js = "";
+    const makeStr = ([a, b]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
+    js += Object.entries(a).map(makeStr).join("\n");
     let html = tmp.innerHTML;
     html += "<script src='dist/runTime.js'></script>\n";
-    html += "<script defer src='dist/program.js'></script>\n";
+    html += "<script src='dist/program.js'></script>\n";
+    html += `<script defer>${js}</script>\n`;
     html = formatHTMLString(html);
     return html;
 };

@@ -8,7 +8,7 @@ module.exports = {
     }
     ,
 
-    mode: 'development',
+    mode: 'production',
     module: {
         rules: [
             {
@@ -31,6 +31,12 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
+    optimization: {
+        usedExports: true,
+    },
+    //  mode: 'production',
+    // };
+    // Tip
     output: {
         // filename: 'build.js',
         filename: '[name].js',

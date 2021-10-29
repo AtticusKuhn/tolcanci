@@ -20,6 +20,9 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         if (isServer()) {
             a.staticProps = x;
         }
+        else {
+            throw new Error("static props should never be called on client side");
+        }
         return a;
     };
     a.onStateChangeF = [];

@@ -1,5 +1,6 @@
 import { button, div, makeApplication, p, } from "./index";
 import https from "https"
+console.log("[INFO] example program initialized")
 //@ts-nocheck
 const intro = div("welcome to tolcanci, a UI framework")
 const temp = div("I am a reusable component")
@@ -13,7 +14,9 @@ const counterExample = div<number>(
     displayCount,
     b,
 )
-counterExample.setState(1)
+counterExample.setStaticProps(async () => {
+    return 12
+})
 b.addEventListener("click", () => {
     counterExample.setState(counterExample.state + 1)
 })
