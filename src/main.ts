@@ -1,5 +1,5 @@
-import { app } from "./example"
+import { app } from "../example/example"
 import fs from "fs"
 app.then((a: string) =>
-    fs.writeFileSync("./example.html", a)
+    fs.writeFileSync("./example/index.html", a)
 )

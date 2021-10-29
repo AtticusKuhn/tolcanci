@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
-const index_1 = require("./index");
+const index_1 = require("../src/index");
 const https_1 = __importDefault(require("https"));
 console.log("[INFO] example program initialized");
 const intro = (0, index_1.div)("welcome to tolcanci, a UI framework");

@@ -1,0 +1,31 @@
+
+<div secret-id="14">
+    <div secret-id="0">welcome to tolcanci, a UI framework</div>
+    <div secret-id="2">we allow for reusable components
+        <div secret-id="1">I am a reusable component</div>
+    </div>
+    <div secret-id="8">we allow for stateful components
+        <div listener-id="4" secret-id="4">
+            <div secret-id="7" arg-id="7">
+                <div secret-id="18">
+                    <div secret-id="16">the current count 12</div>
+                    <div secret-id="17">the next count wil be 13</div>
+                </div>
+            </div>
+            <button secret-id="3">press me</button>
+        </div>
+    </div>
+    <div listener-id="9" secret-id="9">this is a component with static props (generated at build time)
+        <div secret-id="10" arg-id="10">
+            <div secret-id="19">delectus aut autem</div>
+        </div>
+    </div>
+    <div secret-id="12" style="color: red;">I have style
+        <p secret-id="11">and so do I</p>
+    </div>
+    <a secret-id="13" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">we support using links</a>
+</div>
+<script src="dist/program.js"></script>
+
+<script defer="">document.querySelector("[secret-id='4']").setState( 12);
+document.querySelector("[secret-id='9']").setState( "delectus aut autem");</script>

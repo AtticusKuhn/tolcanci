@@ -95,3 +95,7 @@ function formatNode(node: Element, level: number): Element {
     }
     return node;
 }
+
+export const router = (x: Record<string, extendedElem<any>>): any => {
+
+}

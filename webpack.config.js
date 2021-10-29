@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
 
     entry: {
-        program: './src/example.ts',
+        program: './example/example.ts',
         // runTime: "./src/client.ts"
     }
     ,
@@ -40,6 +40,6 @@ module.exports = {
     output: {
         // filename: 'build.js',
         filename: '[name].js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'example/dist')
     }
 }

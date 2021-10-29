@@ -1,4 +1,4 @@
-import { a, button, div, makeApplication, p, } from "./index";
+import { a, button, div, makeApplication, p, router, } from "../src/index";
 import https from "https"
 console.log("[INFO] example program initialized")
 //@ts-nocheck
@@ -29,7 +29,6 @@ const getTodos = () => new Promise<string>((resolve) => {
 })
 const state = div("we allow for stateful components", counterExample)
 const staticProps = div<string>("this is a component with static props (generated at build time)",
-    //@ts-ignore    
     (string) => div(string)
 )
     .setStaticProps(getTodos)
@@ -46,5 +45,9 @@ const main = div(
     style,
     links
 )
+const routes = router({
+    "/": main,
+    "/:other": div("404 not found")
+})
 export const app = makeApplication(main)
 
