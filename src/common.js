@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.simpleElementBuilders = exports.id = void 0;
+exports.makeA = exports.simpleElementBuilders = exports.id = void 0;
 const isServer = () => typeof window === "undefined";
 let idCounter = 0;
 const id = () => (idCounter++).toString();
@@ -139,3 +139,17 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
     return a;
 };
 exports.simpleElementBuilders = simpleElementBuilders;
+const makeElemWithProps = (props) => (tagName) => (window) => {
+    return (...args) => {
+        let elem = (0, exports.simpleElementBuilders)(window)(tagName)(...args);
+        for (const prop of props) {
+            elem[prop] = "";
+            elem[`$${prop}`] = (newValue) => {
+                elem[prop] = newValue;
+                return elem;
+            };
+        }
+        return elem;
+    };
+};
+exports.makeA = makeElemWithProps(["href", "referer"])("a");

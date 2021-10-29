@@ -1,11 +1,13 @@
 import fs from "fs"
 import { JSDOM } from "jsdom"
-import { extendedElem, simpleElementBuilders } from "./common"
+import { extendedElem, simpleElementBuilders, makeA } from "./common"
 
 //@ts-ignore
-export const simpleElement = simpleElementBuilders((new JSDOM(``)).window)
+const window: Window = new JSDOM(``).window;
+export const simpleElement = simpleElementBuilders(window);
 
 export const [div, p, button] = ["div", "p", "button"].map(simpleElement)
+export const a = makeA(window)
 export const makeApplication = async (x: extendedElem<any>): Promise<string> => {
     // const { document } = (new JSDOM(``)).window;
     const tmp = div()
@@ -18,7 +20,7 @@ export const makeApplication = async (x: extendedElem<any>): Promise<string> => 
     js += Object.entries(a).map(makeStr).join("\n");
     // console.log("js", js)
     let html = tmp.innerHTML;
-    html += "<script src='dist/runTime.js'></script>\n";
+    // html += "<script src='dist/runTime.js'></script>\n";
     html += "<script src='dist/program.js'></script>\n";
     html += `<script defer>${js}</script>\n`
     html = formatHTMLString(html);

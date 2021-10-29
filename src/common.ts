@@ -173,3 +173,28 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
     }
     return a;
 };
+type PropsElem<T extends string[]> =
+    //@ts-ignore
+    { [t in keyof T as T[t]]?: string }
+    //@ts-ignore
+    & { [t in keyof T as `$${Uncapitalize<T[t]>}`]: (newValue: string) => PropsElem<T> }
+    & extendedElem<any>;
+
+const makeElemWithProps = <T extends string[]>(props: T) => (tagName: string) => (window: Window) => {
+    return (...args: any[]): PropsElem<T> => {
+        let elem = simpleElementBuilders(window)(tagName)(...args) as PropsElem<T>
+        for (const prop of props) {
+            //@ts-ignore
+            elem[prop] = ""
+            //@ts-ignore
+            elem[`$${prop}`] = (newValue: string) => {
+                //@ts-ignore
+                elem[prop] = newValue
+                return elem;
+            }
+        }
+
+        return elem
+    }
+}
+export const makeA = makeElemWithProps<["href", "referer"]>(["href", "referer"])("a")

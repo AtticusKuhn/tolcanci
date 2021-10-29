@@ -1,4 +1,4 @@
-import { button, div, makeApplication, p, } from "./index";
+import { a, button, div, makeApplication, p, } from "./index";
 import https from "https"
 console.log("[INFO] example program initialized")
 //@ts-nocheck
@@ -36,13 +36,15 @@ const staticProps = div<string>("this is a component with static props (generate
 const style = div("I have style",
     p("and so do I")
 ).setCss("color:red")
+const links = a("we support using links").$href("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 // console.log("b.addEventListener(", b.addEventListener)
 const main = div(
     intro,
     comps,
     state,
     staticProps,
-    style
+    style,
+    links
 )
 export const app = makeApplication(main)
 

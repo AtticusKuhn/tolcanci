@@ -4,12 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeApplication = exports.button = exports.p = exports.div = exports.simpleElement = void 0;
+exports.makeApplication = exports.a = exports.button = exports.p = exports.div = exports.simpleElement = void 0;
 const fs_1 = __importDefault(require("fs"));
 const jsdom_1 = require("jsdom");
 const common_1 = require("./common");
-exports.simpleElement = (0, common_1.simpleElementBuilders)((new jsdom_1.JSDOM(``)).window);
+const window = new jsdom_1.JSDOM(``).window;
+exports.simpleElement = (0, common_1.simpleElementBuilders)(window);
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
+exports.a = (0, common_1.makeA)(window);
 const makeApplication = async (x) => {
     const tmp = (0, exports.div)();
     const a = await x.getStaticProps();
@@ -20,7 +22,6 @@ const makeApplication = async (x) => {
     const makeStr = ([a, b]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
     js += Object.entries(a).map(makeStr).join("\n");
     let html = tmp.innerHTML;
-    html += "<script src='dist/runTime.js'></script>\n";
     html += "<script src='dist/program.js'></script>\n";
     html += `<script defer>${js}</script>\n`;
     html = formatHTMLString(html);

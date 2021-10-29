@@ -9,7 +9,10 @@ module.exports = () => (
                 // console.log("v is", v)
                 // path.remove();
                 // console.log(v("fs"))
-                if (v === "index" || v === "./index" || v === "https" || v === "fs") {
+                if (v === "index" || v === "./index") {
+                    path.get("source").replaceWith(t.stringLiteral(__dirname + "/src/client.ts"))
+                }
+                if (v === "https" || v === "fs") {
                     // path.node = null;
                     path.remove()
                     // path.replaceWith(

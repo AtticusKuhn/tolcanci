@@ -4,7 +4,7 @@ module.exports = {
 
     entry: {
         program: './src/example.ts',
-        runTime: "./src/client.ts"
+        // runTime: "./src/client.ts"
     }
     ,
 
