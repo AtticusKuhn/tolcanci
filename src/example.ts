@@ -1,5 +1,6 @@
 import { button, div, makeApplication, p, } from "./index";
 import https from "https"
+//@ts-nocheck
 const intro = div("welcome to tolcanci, a UI framework")
 const temp = div("I am a reusable component")
 const comps = div("we allow for reusable components", temp, temp)

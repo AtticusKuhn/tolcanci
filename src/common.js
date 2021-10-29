@@ -9,6 +9,9 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
     let document = window.document;
     let a = (typeof tagName === "string" ? document.createElement(tagName)
         : tagName);
+    a.noop = () => {
+        return a;
+    };
     a.attr = (b, c) => {
         a.setAttribute(b, c);
         return a;

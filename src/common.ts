@@ -16,6 +16,7 @@ export interface extendedElem<T> extends HTMLElement {
     setCss: (x: reactive<string, T>) => extendedElem<T>;
     onStateChangeF: Array<(x: T) => any>;
     onStateChange: (f: (x: T) => any) => void;
+    noop: (...args: any[]) => extendedElem<T>;
 
 }
 const isServer = (): boolean => typeof window === "undefined";
@@ -28,6 +29,9 @@ export const simpleElementBuilders = (window: Window) => (tagName: string | HTML
     let document = window.document
     let a = (typeof tagName === "string" ? document.createElement(tagName)
         : tagName) as extendedElem<T>;
+    a.noop = () => {
+        return a;
+    }
     a.attr = (b, c) => {
         a.setAttribute(b, c)
         return a;
