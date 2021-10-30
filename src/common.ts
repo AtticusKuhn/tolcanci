@@ -19,7 +19,7 @@ export interface extendedElem<T> extends HTMLElement {
     noop: (...args: any[]) => extendedElem<T>;
 
 }
-const isServer = (): boolean => typeof window === "undefined";
+export const isServer = (): boolean => typeof window === "undefined";
 // const randomInRange = (low: number) => (high: number): number => Math.floor(Math.random() * (high - low) + low)
 // const randomLetter = () => String.fromCharCode(randomInRange(97)(122))
 let idCounter = 0

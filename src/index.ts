@@ -1,6 +1,6 @@
-import fs from "fs"
-import { JSDOM } from "jsdom"
-import { extendedElem, simpleElementBuilders, makeA } from "./common"
+import fs from "fs";
+import { JSDOM } from "jsdom";
+import { extendedElem, makeA, simpleElementBuilders } from "./common";
 
 //@ts-ignore
 const window: Window = new JSDOM(``).window;
@@ -8,24 +8,58 @@ export const simpleElement = simpleElementBuilders(window);
 
 export const [div, p, button] = ["div", "p", "button"].map(simpleElement)
 export const a = makeA(window)
-export const makeApplication = async (x: extendedElem<any>): Promise<string> => {
+interface ops {
+    buildOpts: {
+        build: "server" | "static"
+    },
+}
+type router = (extendedElem<any> & { routes: string[], update: (x: Window) => router });
+export const makeApplication = async (x: extendedElem<any> | router, _options?: ops): Promise<string> => {
+    console.log("make app called")
     // const { document } = (new JSDOM(``)).window;
-    const tmp = div()
-    const a = await x.getStaticProps()
-    console.log("result of static props is", a)
-    console.log("making app")
-    tmp.appendChild(x);
-    let js = "";// getJs(tmp);
-    const makeStr = ([a, b]: [string, any]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
-    js += Object.entries(a).map(makeStr).join("\n");
-    // console.log("js", js)
-    let html = tmp.innerHTML;
-    // html += "<script src='dist/runTime.js'></script>\n";
-    html += "<script src='dist/program.js'></script>\n";
-    html += `<script defer>${js}</script>\n`
-    html = formatHTMLString(html);
-    // console.log("tmp", tmp)
-    return html
+    //@ts-ignore
+    if (x.update) {
+        //@ts-ignore
+        x = x.update(new JSDOM(``).window)
+    }
+    //@ts-ignore
+    const routes = x?.routes || ["/"]
+    console.log("routes is", routes)
+    console.log("x is", x)
+    for (const route of routes) {
+        const win = new JSDOM(``, {
+            url: `http://localhost.com/${route}`
+        }).window as unknown as Window;
+        // const x = xf(win)
+        //@ts-ignore
+        if (x.update) {
+            //@ts-ignore
+            x = x.update(win)
+        }
+        const body = win.document.body;
+        // window.
+        // const tmp = div()
+        const a = await x?.getStaticProps()
+        console.log("setting window")
+        // x.window = win;
+        // console.log("result of static props is", a)
+        console.log("making app")
+        body.appendChild(x);
+        let js = "";// getJs(tmp);
+        const makeStr = ([a, b]: [string, any]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
+        js += Object.entries(a).map(makeStr).join("\n");
+        // console.log("js", js)
+        let html = body.innerHTML;
+        // html += "<script src='dist/runTime.js'></script>\n";
+        html += "<script src='dist/program.js'></script>\n";
+        html += `<script defer>${js}</script>\n`
+        html = formatHTMLString(html);
+        fs.writeFileSync(`./example/${route}.html`, html)
+
+        // console.log("tmp", tmp)
+        // return html
+    }
+    return "this is a placeholder"
 }
 //@ts-ignore
 const getJs = (_node: extendedElem<any>): string => {
@@ -96,6 +130,26 @@ function formatNode(node: Element, level: number): Element {
     return node;
 }
 
-export const router = (x: Record<string, extendedElem<any>>): any => {
+export function router(x: Record<string, extendedElem<any>>): router {
+    const comp = x[""] as router;
+    const update = (w: Window): router => {
 
+
+        const loc: string = w.location.pathname;
+
+        const comp = x[loc.substr(1)] as router;
+        console.log("x is", x)
+        if (!comp) {
+            throw new Error(`unrecognized location ${loc}`)
+        }
+        comp.update = update;
+        comp.routes = Object.keys(x)
+        return comp
+    }
+
+    if (!comp) {
+        throw new Error("no handling for / route")
+    }
+    comp.update = update;
+    return comp as router;
 }

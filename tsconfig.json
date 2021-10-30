@@ -22,6 +22,6 @@
     "resolveJsonModule": true,
   },
   "files": [
-    "src/main.ts",
+    "example/example.ts",
   ]
 }

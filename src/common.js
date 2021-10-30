@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeA = exports.simpleElementBuilders = exports.id = void 0;
+exports.makeA = exports.simpleElementBuilders = exports.id = exports.isServer = void 0;
 const isServer = () => typeof window === "undefined";
+exports.isServer = isServer;
 let idCounter = 0;
 const id = () => (idCounter++).toString();
 exports.id = id;
@@ -17,7 +18,7 @@ const simpleElementBuilders = (window) => (tagName) => (...args) => {
         return a;
     };
     a.setStaticProps = (x) => {
-        if (isServer()) {
+        if ((0, exports.isServer)()) {
             a.staticProps = x;
         }
         else {

@@ -46,8 +46,9 @@ const main = div(
     links
 )
 const routes = router({
-    "/": main,
-    "/:other": div("404 not found")
+    "": main,
+    ":other": div("404 not found"),
+    "someStuff": div("")
 })
-export const app = makeApplication(main)
+export const app = makeApplication(routes)
 

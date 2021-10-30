@@ -24,7 +24,7 @@ module.exports = () => (
                 // );
             },
             MemberExpression(path) {
-                console.log("name", path.get("property.name").node)
+                // console.log("name", path.get("property.name").node)
                 if (path.get("property.name").node === "setStaticProps") {
                     console.log("it's static props")
                     // console.log("arugments", path.parentPath.get("arguments"))
