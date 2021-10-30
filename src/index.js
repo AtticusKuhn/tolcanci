@@ -15,7 +15,9 @@ exports.a = (0, common_1.makeA)(window);
 const makeApplication = async (x, _options) => {
     console.log("make app called");
     if (x.update) {
-        x = x.update(new jsdom_1.JSDOM(``).window);
+        x = x.update(new jsdom_1.JSDOM(``, {
+            url: "http://localhost.com/"
+        }).window);
     }
     const routes = (x === null || x === void 0 ? void 0 : x.routes) || ["/"];
     console.log("routes is", routes);
@@ -36,14 +38,15 @@ const makeApplication = async (x, _options) => {
         const makeStr = ([a, b]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
         js += Object.entries(a).map(makeStr).join("\n");
         let html = body.innerHTML;
-        html += "<script src='dist/program.js'></script>\n";
+        html += "<script src='./program.js'></script>\n";
         html += `<script defer>${js}</script>\n`;
         html = formatHTMLString(html);
-        fs_1.default.writeFileSync(`./example/${route}.html`, html);
+        fs_1.default.writeFileSync(`./example/dist/${routeToFile(route)}.html`, html);
     }
     return "this is a placeholder";
 };
 exports.makeApplication = makeApplication;
+const routeToFile = (route) => route === "/" || route === "" ? "index" : route;
 const getJs = (_node) => {
     let js = "";
     js += "let exports = {}; \n";
@@ -78,8 +81,8 @@ function router(x) {
     const comp = x[""];
     const update = (w) => {
         const loc = w.location.pathname;
+        console.log("location is", w.location.href);
         const comp = x[loc.substr(1)];
-        console.log("x is", x);
         if (!comp) {
             throw new Error(`unrecognized location ${loc}`);
         }

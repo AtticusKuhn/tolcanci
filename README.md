@@ -1,7 +1,11 @@
+# Tolcanci
+Tolcanci is a typescript UI framework inspired my mithril, next.js, and grecha.js
+# Example
+Here is an example of a Tolcanci project (from /example/example.ts)
+```ts
 import { a, button, div, makeApplication, p, router, } from "../src/index";
 import https from "https"
 console.log("[INFO] example program initialized")
-//@ts-nocheck
 const intro = div("welcome to tolcanci, a UI framework")
 const temp = div("I am a reusable component")
 const comps = div("we allow for reusable components", temp, temp)
@@ -36,7 +40,6 @@ const style = div("I have style",
     p("and so do I")
 ).setCss("color:red")
 const links = a("we support using links").$href("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-// console.log("b.addEventListener(", b.addEventListener)
 const main = div(
     intro,
     comps,
@@ -51,4 +54,5 @@ const routes = router({
     "someStuff": div("stuff")
 })
 export const app = makeApplication(routes)
-
+```
+you can see it deployed at https://eulerthedestroyer.github.io/tolcanci/

@@ -32,7 +32,7 @@ const links = (0, index_1.a)("we support using links").$href("https://www.youtub
 const main = (0, index_1.div)(intro, comps, state, staticProps, style, links);
 const routes = (0, index_1.router)({
     "": main,
-    ":other": (0, index_1.div)("404 not found"),
-    "someStuff": (0, index_1.div)("")
+    "404": (0, index_1.div)("404 not found"),
+    "someStuff": (0, index_1.div)("stuff")
 });
 exports.app = (0, index_1.makeApplication)(routes);

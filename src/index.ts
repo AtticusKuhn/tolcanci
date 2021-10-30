@@ -20,7 +20,9 @@ export const makeApplication = async (x: extendedElem<any> | router, _options?: 
     //@ts-ignore
     if (x.update) {
         //@ts-ignore
-        x = x.update(new JSDOM(``).window)
+        x = x.update(new JSDOM(``, {
+            url: "http://localhost.com/"
+        }).window)
     }
     //@ts-ignore
     const routes = x?.routes || ["/"]
@@ -51,16 +53,18 @@ export const makeApplication = async (x: extendedElem<any> | router, _options?: 
         // console.log("js", js)
         let html = body.innerHTML;
         // html += "<script src='dist/runTime.js'></script>\n";
-        html += "<script src='dist/program.js'></script>\n";
+        html += "<script src='./program.js'></script>\n";
         html += `<script defer>${js}</script>\n`
         html = formatHTMLString(html);
-        fs.writeFileSync(`./example/${route}.html`, html)
+
+        fs.writeFileSync(`./example/dist/${routeToFile(route)}.html`, html)
 
         // console.log("tmp", tmp)
         // return html
     }
     return "this is a placeholder"
 }
+const routeToFile = (route: string): string => route === "/" || route === "" ? "index" : route;
 //@ts-ignore
 const getJs = (_node: extendedElem<any>): string => {
     let js = ""
@@ -71,39 +75,6 @@ const getJs = (_node: extendedElem<any>): string => {
     js += "document.body.append(main);\n"
     js = js.replace(/(^.*require.*$)/g, "// $1")
     return js;
-    // js += `//generaing js for ${node.secret_id}\n`
-    // const id = Math.random().toString()
-
-    // if (node.state !== null && node.state !== undefined) {
-    //     node.attr('data-id', id)
-    //     console.log("node has state", node.state)
-    //     js += `
-    //     const ${node.varName} = clientElement(document.querySelector("[data-id='${id}'"))().setState(${node.state});\n
-    //     ${node.varName}.secret_id = "${node.secret_id}";\n
-    //     `
-    //     // js += `
-    //     // const ${node.secret_id} = {
-
-    //     // }
-    //     // `
-    // }
-    // console.log("listeners in getJs", node?.listeners)
-    // if (node?.listeners?.length > 0) {
-    //     console.log("node has a listener")
-    //     node.attr('data-id', id)
-    //     js += node.listeners.map(listener =>
-    //         listener.name.startsWith("newState") ?
-    //             `document.addEventListener("${listener.name}",${listener.source});\n`
-    //             : `document.querySelector("[data-id='${id}']").addEventListener("${listener.name}",
-    //             ${listener.source});\n`
-
-    //     ).join(";\n")
-    // }
-    // for (let i = 0; i < node.children.length; i++) {
-    //     //@ts-ignore
-    //     js += getJs(node.children[i])
-    // }
-    // return js;
 }
 //@ts-ignore
 function formatHTMLString(str: string): string {
@@ -136,9 +107,10 @@ export function router(x: Record<string, extendedElem<any>>): router {
 
 
         const loc: string = w.location.pathname;
+        console.log("location is", w.location.href)
 
         const comp = x[loc.substr(1)] as router;
-        console.log("x is", x)
+        // console.log("x is", x)
         if (!comp) {
             throw new Error(`unrecognized location ${loc}`)
         }

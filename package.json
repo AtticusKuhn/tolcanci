@@ -19,6 +19,7 @@
   },
   "scripts": {
     "build-html": "tsc && webpack && node ./example/example.js",
+    "deploy": "yarn run build-html && touch example/dist/.nojekyll && git add example/dist && git commit -m \"Initial dist subtree commit\" && git subtree push --prefix example/dist origin gh-pages",
     "run": "tsc",
     "build": "webpack"
   }
