@@ -11,18 +11,20 @@ export const a = makeA(window)
 interface ops {
     buildOpts: {
         build: "server" | "static"
+        basePath: string;
     },
 }
-type router = (extendedElem<any> & { routes: string[], update: (x: Window) => router });
-export const makeApplication = async (x: extendedElem<any> | router, _options?: ops): Promise<string> => {
+type router = (extendedElem<any> & { routes: string[], update: (x: Window, basePath: string) => router });
+export const makeApplication = async (x: extendedElem<any> | router, options: ops): Promise<string> => {
     console.log("make app called")
     // const { document } = (new JSDOM(``)).window;
+    const url = options.buildOpts.basePath
     //@ts-ignore
     if (x.update) {
         //@ts-ignore
         x = x.update(new JSDOM(``, {
-            url: "http://localhost.com/"
-        }).window)
+            url,
+        }).window, url)
     }
     //@ts-ignore
     const routes = x?.routes || ["/"]
@@ -30,13 +32,13 @@ export const makeApplication = async (x: extendedElem<any> | router, _options?: 
     console.log("x is", x)
     for (const route of routes) {
         const win = new JSDOM(``, {
-            url: `http://localhost.com/${route}`
+            url: `${url}${route}`
         }).window as unknown as Window;
         // const x = xf(win)
         //@ts-ignore
         if (x.update) {
             //@ts-ignore
-            x = x.update(win)
+            x = x.update(win, url)
         }
         const body = win.document.body;
         // window.
@@ -52,6 +54,7 @@ export const makeApplication = async (x: extendedElem<any> | router, _options?: 
         js += Object.entries(a).map(makeStr).join("\n");
         // console.log("js", js)
         let html = body.innerHTML;
+        html += `<script>window.basePath = "${url}"</script>\n`;
         // html += "<script src='dist/runTime.js'></script>\n";
         html += "<script src='./program.js'></script>\n";
         html += `<script defer>${js}</script>\n`
@@ -103,13 +106,12 @@ function formatNode(node: Element, level: number): Element {
 
 export function router(x: Record<string, extendedElem<any>>): router {
     const comp = x[""] as router;
-    const update = (w: Window): router => {
-
-
-        const loc: string = w.location.pathname;
+    const update = (w: Window, basePath: string): router => {
+        console.log("in update, basepath is", basePath)
+        const loc: string = w.location.pathname // .substr(new URL(basePath).href.length);
         console.log("location is", w.location.href)
 
-        const comp = x[loc.substr(1)] as router;
+        const comp = x[loc.substr(1).substr(basePath.length)] as router;
         // console.log("x is", x)
         if (!comp) {
             throw new Error(`unrecognized location ${loc}`)

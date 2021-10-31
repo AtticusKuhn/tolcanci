@@ -181,7 +181,7 @@ type PropsElem<T extends string[]> =
     & extendedElem<any>;
 
 const makeElemWithProps = <T extends string[]>(props: T) => (tagName: string) => (window: Window) => {
-    return (...args: any[]): PropsElem<T> => {
+    return (...args: child<any>[]): PropsElem<T> => {
         let elem = simpleElementBuilders(window)(tagName)(...args) as PropsElem<T>
         for (const prop of props) {
             //@ts-ignore

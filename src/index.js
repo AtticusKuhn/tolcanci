@@ -12,22 +12,23 @@ const window = new jsdom_1.JSDOM(``).window;
 exports.simpleElement = (0, common_1.simpleElementBuilders)(window);
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
 exports.a = (0, common_1.makeA)(window);
-const makeApplication = async (x, _options) => {
+const makeApplication = async (x, options) => {
     console.log("make app called");
+    const url = options.buildOpts.basePath;
     if (x.update) {
         x = x.update(new jsdom_1.JSDOM(``, {
-            url: "http://localhost.com/"
-        }).window);
+            url,
+        }).window, url);
     }
     const routes = (x === null || x === void 0 ? void 0 : x.routes) || ["/"];
     console.log("routes is", routes);
     console.log("x is", x);
     for (const route of routes) {
         const win = new jsdom_1.JSDOM(``, {
-            url: `http://localhost.com/${route}`
+            url: `${url}${route}`
         }).window;
         if (x.update) {
-            x = x.update(win);
+            x = x.update(win, url);
         }
         const body = win.document.body;
         const a = await (x === null || x === void 0 ? void 0 : x.getStaticProps());
@@ -38,6 +39,7 @@ const makeApplication = async (x, _options) => {
         const makeStr = ([a, b]) => `document.querySelector("[secret-id='${a}']").setState( ${JSON.stringify(b)});`;
         js += Object.entries(a).map(makeStr).join("\n");
         let html = body.innerHTML;
+        html += `<script>window.basePath = "${url}"</script>\n`;
         html += "<script src='./program.js'></script>\n";
         html += `<script defer>${js}</script>\n`;
         html = formatHTMLString(html);
@@ -79,10 +81,11 @@ function formatNode(node, level) {
 }
 function router(x) {
     const comp = x[""];
-    const update = (w) => {
+    const update = (w, basePath) => {
+        console.log("in update, basepath is", basePath);
         const loc = w.location.pathname;
         console.log("location is", w.location.href);
-        const comp = x[loc.substr(1)];
+        const comp = x[loc.substr(1).substr(basePath.length)];
         if (!comp) {
             throw new Error(`unrecognized location ${loc}`);
         }

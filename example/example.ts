@@ -36,6 +36,9 @@ const style = div("I have style",
     p("and so do I")
 ).setCss("color:red")
 const links = a("we support using links").$href("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+const spa = div("this is an spa",
+    a("go to stuff").$href("/someStuff")
+)
 // console.log("b.addEventListener(", b.addEventListener)
 const main = div(
     intro,
@@ -43,12 +46,18 @@ const main = div(
     state,
     staticProps,
     style,
-    links
+    links,
+    spa
 )
 const routes = router({
     "": main,
     "404": div("404 not found"),
     "someStuff": div("stuff")
 })
-export const app = makeApplication(routes)
+export const app = makeApplication(routes, {
+    buildOpts: {
+        basePath: "http://127.0.0.1:5500/example/dist/",
+        build: "static"
+    }
+})
 
