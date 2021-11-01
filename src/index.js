@@ -4,13 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.router = exports.makeApplication = exports.a = exports.button = exports.p = exports.div = exports.simpleElement = void 0;
+exports.router = exports.makeApplication = exports.a = exports.br = exports.button = exports.p = exports.div = exports.simpleElement = void 0;
 const fs_1 = __importDefault(require("fs"));
 const jsdom_1 = require("jsdom");
 const common_1 = require("./common");
 const window = new jsdom_1.JSDOM(``).window;
 exports.simpleElement = (0, common_1.simpleElementBuilders)(window);
 _a = ["div", "p", "button"].map(exports.simpleElement), exports.div = _a[0], exports.p = _a[1], exports.button = _a[2];
+exports.br = (0, exports.simpleElement)("br")();
 exports.a = (0, common_1.makeA)(window);
 const makeApplication = async (x, options) => {
     console.log("make app called");

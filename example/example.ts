@@ -1,4 +1,4 @@
-import { a, button, div, makeApplication, p, router, } from "../src/index";
+import { a, br, button, div, makeApplication, p, router, } from "../src/index";
 import https from "https"
 console.log("[INFO] example program initialized")
 //@ts-nocheck
@@ -37,6 +37,7 @@ const style = div("I have style",
 ).setCss("color:red")
 const links = a("we support using links").$href("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 const spa = div("this is an spa",
+    br,
     a("go to stuff").$href("/someStuff")
 )
 // console.log("b.addEventListener(", b.addEventListener)
@@ -51,8 +52,8 @@ const main = div(
 )
 const routes = router({
     "": main,
-    "404": div("404 not found"),
-    "someStuff": div("stuff")
+    "404": div("404 not found", br, a("go back to home").$href("/")),
+    "someStuff": div("stuff", br, a("go back to home").$href("/"))
 })
 export const app = makeApplication(routes, {
     buildOpts: {

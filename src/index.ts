@@ -7,6 +7,8 @@ const window: Window = new JSDOM(``).window;
 export const simpleElement = simpleElementBuilders(window);
 
 export const [div, p, button] = ["div", "p", "button"].map(simpleElement)
+export const br = simpleElement("br")<void>()
+
 export const a = makeA(window)
 interface ops {
     buildOpts: {

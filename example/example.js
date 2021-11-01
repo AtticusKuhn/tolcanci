@@ -29,12 +29,12 @@ const staticProps = (0, index_1.div)("this is a component with static props (gen
     .setStaticProps(getTodos);
 const style = (0, index_1.div)("I have style", (0, index_1.p)("and so do I")).setCss("color:red");
 const links = (0, index_1.a)("we support using links").$href("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-const spa = (0, index_1.div)("this is an spa", (0, index_1.a)("go to stuff").$href("/someStuff"));
+const spa = (0, index_1.div)("this is an spa", index_1.br, (0, index_1.a)("go to stuff").$href("/someStuff"));
 const main = (0, index_1.div)(intro, comps, state, staticProps, style, links, spa);
 const routes = (0, index_1.router)({
     "": main,
-    "404": (0, index_1.div)("404 not found"),
-    "someStuff": (0, index_1.div)("stuff")
+    "404": (0, index_1.div)("404 not found", index_1.br, (0, index_1.a)("go back to home").$href("/")),
+    "someStuff": (0, index_1.div)("stuff", index_1.br, (0, index_1.a)("go back to home").$href("/"))
 });
 exports.app = (0, index_1.makeApplication)(routes, {
     buildOpts: {
