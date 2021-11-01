@@ -82,10 +82,17 @@ function formatNode(node, level) {
 function router(x) {
     const comp = x[""];
     const update = (w, basePath) => {
-        console.log("in update, basepath is", basePath);
+        const pathPath = new URL(basePath).pathname;
+        console.log("in update, pathPath is", pathPath);
         const loc = w.location.pathname;
-        console.log("location is", w.location.href);
-        const comp = x[loc.substr(1).substr(basePath.length)];
+        console.log("in router, location is", w.location.href);
+        const path = loc.substr(pathPath.length);
+        console.log(`in router, 
+        loc: ${loc}, 
+        pathPath: ${pathPath}
+        pathPath.length: ${pathPath.length}
+        path: ${path}`);
+        const comp = x[path];
         if (!comp) {
             throw new Error(`unrecognized location ${loc}`);
         }

@@ -107,11 +107,18 @@ function formatNode(node: Element, level: number): Element {
 export function router(x: Record<string, extendedElem<any>>): router {
     const comp = x[""] as router;
     const update = (w: Window, basePath: string): router => {
-        console.log("in update, basepath is", basePath)
-        const loc: string = w.location.pathname // .substr(new URL(basePath).href.length);
-        console.log("location is", w.location.href)
+        const pathPath = new URL(basePath).pathname
 
-        const comp = x[loc.substr(1).substr(basePath.length)] as router;
+        console.log("in update, pathPath is", pathPath)
+        const loc: string = w.location.pathname // .substr(new URL(basePath).href.length);
+        console.log("in router, location is", w.location.href)
+        const path = loc.substr(pathPath.length)
+        console.log(`in router, 
+        loc: ${loc}, 
+        pathPath: ${pathPath}
+        pathPath.length: ${pathPath.length}
+        path: ${path}`)
+        const comp = x[path] as router;
         // console.log("x is", x)
         if (!comp) {
             throw new Error(`unrecognized location ${loc}`)

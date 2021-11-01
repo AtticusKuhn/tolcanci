@@ -31,6 +31,16 @@ export const router = (x: Record<string, extendedElem<any>>): extendedElem<void>
     if (!comp) {
         throw new Error(`no component for path ${loc}`)
     }
+    document.addEventListener("newPath", () => {
+        const loc: string = w.location.pathname;
+        // console.log("location is", w.location.href)
+        //@ts-ignore
+        const newComp = x[loc.substr(w.basePath.length)];
+        if (!newComp) {
+            throw new Error(`no component for path ${loc}`)
+        }
+        comp.replaceWith(newComp)
+    })
 
     return comp
 }
