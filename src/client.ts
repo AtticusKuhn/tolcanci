@@ -32,22 +32,42 @@ export const router = (x: Record<string, extendedElem<any>>): extendedElem<void>
     //@ts-ignore
     const pathPath = new URL(w.basePath).pathname
     const loc: string = w.location.pathname;
-    const comp = x[loc.substr(pathPath.length)] || x[loc.substr(pathPath.length).substr(0, loc.substr(pathPath.length).length - 5)];
-    console.log(`loc.substr(pathPath.length) is ${loc.substr(pathPath.length)}`)
-    if (!comp) {
-        throw new Error(`no component for path ${loc}`)
+    const getPaths = (loc: string): string[] => {
+        let arr = [loc.substr(pathPath.length), loc.substr(pathPath.length).substr(0, loc.substr(pathPath.length).length - 5)]
+        if (loc.substr(pathPath.length).substr(0, loc.substr(pathPath.length).length - 5) === "index" || loc.substr(pathPath.length) === "index") {
+            arr.push("")
+        }
+        return arr;
     }
+    const recalculate = () => {
+        const loc: string = w.location.pathname;
+        const newComp = x[getPaths(loc).find(p => !!x[p])]
+        if (!newComp) {
+            throw new Error(`no component for path ${getPaths(loc).join(", ")} `)
+        }
+        console.log(`in recalcuate, ${getPaths(loc).join(", ")} and ${newComp.innerHTML}`)
+        return newComp;
+    }
+    const comp = recalculate()
+    const holder = div<void>()
+    holder.append(comp)
     document.addEventListener("newPath", () => {
         console.log("got newpath event")
-        const loc: string = w.location.pathname;
-        // console.log("location is", w.location.href)
-        //@ts-ignore
-        const newComp = x[loc.substr(pathPath.length)] || x[loc.substr(pathPath.length).substr(0, loc.substr(pathPath.length).length - 5)];
-        if (!newComp) {
-            throw new Error(`no component for path ${loc}`)
-        }
-        comp.replaceWith(newComp)
+        // const loc: string = w.location.pathname;
+        const newComp = recalculate()
+        holder.innerHTML = ""
+        holder.append(newComp)
+        // document.body.append(newComp)
+        ///comp.replaceWith(newComp)
     })
+    window.onpopstate = function (event) {
+        console.log("window pop")
+        const newComp = recalculate()
+        holder.innerHTML = ""
+        holder.append(newComp)
 
-    return comp
+        // comp.replaceWith(newComp)
+    }
+
+    return holder
 }
